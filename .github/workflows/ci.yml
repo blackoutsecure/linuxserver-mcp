@@ -1,0 +1,30 @@
+# LinuxServer.io MCP Server
+# Workflow: CI build verification
+# Standards basis: Node.js 20+, reproducible npm build checks
+# Approval status: Community-aligned workflow; adjust to LSIO maintainer requirements if requested
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build

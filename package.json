@@ -1,0 +1,66 @@
+{
+  "name": "@blackoutmode/linuxserver-mcp-server",
+  "version": "0.1.0",
+  "description": "LinuxServer.io MCP Server for Docker image scaffolding, templates, and convention validation.",
+  "type": "module",
+  "license": "GPL-3.0",
+  "private": false,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "linuxserver-mcp-server": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "check": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "linuxserver",
+    "docker",
+    "templates",
+    "validation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blackoutmode/linuxserver-mcp-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/blackoutmode/linuxserver-mcp-server/issues"
+  },
+  "homepage": "https://github.com/blackoutmode/linuxserver-mcp-server#readme",
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/blackoutsecure"
+    },
+    {
+      "type": "other",
+      "url": "https://blackoutsecure.app"
+    }
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.5",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.9",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}
