@@ -33,3 +33,39 @@ export interface ScaffoldOutput {
   composeSnippet: string;
   directories: string[];
 }
+
+export interface OfficialImageLookupResult {
+  imageName: string;
+  exists: boolean;
+  listingUrl: string;
+  docsUrl: string;
+  checkedAt: string;
+  notes: string[];
+  docsSignals?: {
+    hasPuidPgid: boolean;
+    hasConfigPath: boolean;
+    hasComposeSection: boolean;
+    hasReadOnlyGuidance: boolean;
+  };
+}
+
+export interface ComplianceCheck {
+  id: string;
+  status: "pass" | "warning" | "fail";
+  message: string;
+}
+
+export interface ComplianceAuditInput extends ServiceSpec {
+  candidateDockerfile?: string;
+  candidateCompose?: string;
+  candidateReadme?: string;
+}
+
+export interface ComplianceAuditResult {
+  score: number;
+  summary: string;
+  checks: ComplianceCheck[];
+  recommendations: string[];
+  remediation?: ScaffoldOutput;
+  officialImage?: OfficialImageLookupResult;
+}

@@ -40,3 +40,25 @@ test("validateLsioSpec rejects invalid port ranges", () => {
   assert.equal(result.valid, false);
   assert.ok(result.issues.some((issue) => issue.code === "INVALID_PORT"));
 });
+
+test("validateLsioSpec rejects invalid service names", () => {
+  const result = validateLsioSpec({
+    imageName: "sampleapp",
+    baseImage: "alpine",
+    serviceName: "Bad Name"
+  });
+
+  assert.equal(result.valid, false);
+  assert.ok(result.issues.some((issue) => issue.code === "INVALID_SERVICE_NAME"));
+});
+
+test("validateLsioSpec warns when healthcheck defaults to 8080", () => {
+  const result = validateLsioSpec({
+    imageName: "sampleapp",
+    baseImage: "alpine",
+    includeHealthcheck: true
+  });
+
+  assert.equal(result.valid, true);
+  assert.ok(result.issues.some((issue) => issue.code === "HEALTHCHECK_DEFAULT_PORT"));
+});

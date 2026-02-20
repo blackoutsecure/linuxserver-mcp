@@ -34,6 +34,19 @@ test("scaffoldLsioService omits healthcheck when disabled", () => {
   assert.equal(scaffold.dockerfile.includes("HEALTHCHECK"), false);
 });
 
+test("scaffoldLsioService includes read-only hints when enabled", () => {
+  const scaffold = scaffoldLsioService({
+    imageName: "myapp",
+    baseImage: "alpine",
+    appPort: 8080,
+    readOnlyRootFs: true
+  });
+
+  assert.ok(scaffold.composeSnippet.includes("read_only: true"));
+  assert.ok(scaffold.composeSnippet.includes("tmpfs"));
+  assert.ok(scaffold.dockerfile.includes("read-only root filesystem mode"));
+});
+
 test("scaffoldLsioService throws on invalid specs", () => {
   assert.throws(
     () =>

@@ -10,6 +10,7 @@ This repository contains an MCP (Model Context Protocol) server designed to assi
 
 Primary LSIO sources for this project:
 - Site: https://www.linuxserver.io/
+- Official images list: https://www.linuxserver.io/our-images
 - Documentation: https://docs.linuxserver.io/
 - API docs: https://docs.linuxserver.io/API/
 - CI environment (Jenkins): https://ci.linuxserver.io/
@@ -107,6 +108,26 @@ When generating code, documentation, or examples in this repository, Copilot sho
 - For review/refactor tasks, apply the LSIO review checklist before finalizing changes.
 - For MCP ecosystem integrations, prefer official/community servers listed under https://github.com/mcp as the source of truth.
 - For container-focused workflows, prefer skillsets/tools that cover Docker build, runtime, and Compose best practices where available.
+
+## Recommended Community Skillsets
+- Image discovery skillset: map user requests to official images from https://www.linuxserver.io/our-images before proposing custom/new image work.
+- Image maintenance skillset: verify upstream release changes, dependency updates, and LSIO docs impact before editing templates or validation rules.
+- Image review skillset: check base image assumptions, `/config` `/app` `/defaults` expectations, `PUID`/`PGID`, read-only posture, healthcheck behavior, and compose/run examples.
+- Registry/release skillset: validate package metadata, CI publish flow, and release readiness (`npm run release:check`, `npm run release:pack`).
+- Documentation skillset: keep guidance concise, community-facing, and README-only for this repository.
+
+Preferred MCP ecosystem servers from the official registry (use when available and relevant):
+- GitHub MCP server for repository/issue/PR and release process workflows.
+- Context7 (or equivalent docs retrieval) for up-to-date framework/library references.
+- Browser/web research skillsets for authoritative source verification.
+- Local shell/file orchestration skillsets for deterministic build/test/compose checks.
+
+## Image Discovery and Review Guidance
+- When asked to find supported/official LSIO containers, check https://www.linuxserver.io/our-images first.
+- For image-level review tasks, validate outputs against LSIO docs and image conventions before proposing changes.
+- Use available MCP skillsets/servers to support image research and verification (for example: repository lookup, docs retrieval, and container/compose analysis) when they improve confidence.
+- When suggesting external MCP tooling, prefer entries listed in the official MCP registry at https://github.com/mcp.
+- For each image review, explicitly check base image assumptions, required directories (`/config`, `/app`, `/defaults` where applicable), `PUID`/`PGID`, read-only/volume guidance, and compose/run clarity.
 
 ## Implementation Priorities
 - Prioritize maintainability and clear extension points.

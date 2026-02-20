@@ -16,9 +16,13 @@ export function renderDockerfile(spec: ServiceSpec): string {
   const serviceName = spec.serviceName ?? spec.imageName;
   const maintainer = spec.maintainer ?? "linuxserver.io";
   const appPort = spec.appPort ?? 8080;
-  const healthcheck = spec.includeHealthcheck === false
-    ? ""
-    : `\nHEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \\\n  CMD curl -fsS http://localhost:${appPort}/ || exit 1`;
+  const healthcheck =
+    spec.includeHealthcheck === false
+      ? ""
+      : `\nHEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \\\n+  CMD curl -fsS http://localhost:${appPort}/ || exit 1`;
+  const readOnlyNote = spec.readOnlyRootFs
+    ? "\n# Note: read-only root filesystem mode requires writable exceptions (for example /tmp, /run)."
+    : "";
 
   return `FROM ${baseImage}
 
@@ -34,12 +38,15 @@ COPY root/ /
 
 EXPOSE ${appPort}
 VOLUME /config
-${spec.readOnlyRootFs ? "" : ""}${healthcheck}
+${readOnlyNote}${healthcheck}
 `;
 }
 
 export function renderReadmeSnippet(spec: ServiceSpec): string {
   const appPort = spec.appPort ?? 8080;
+  const readOnlyComposeHint = spec.readOnlyRootFs
+    ? "    read_only: true\n    tmpfs:\n      - /tmp\n      - /run\n"
+    : "";
 
   return `## Application Setup
 
@@ -63,13 +70,14 @@ services:
       - ./config:/config
     ports:
       - \"${appPort}:${appPort}\"
-    restart: unless-stopped
+${readOnlyComposeHint}    restart: unless-stopped
 \`\`\`
 `;
 }
 
 export function renderComposeSnippet(spec: ServiceSpec): string {
   const appPort = spec.appPort ?? 8080;
+  const readOnlyBlock = spec.readOnlyRootFs ? "\n    read_only: true\n    tmpfs:\n      - /tmp\n      - /run" : "";
 
   return `services:
   ${spec.imageName}:
@@ -82,5 +90,6 @@ export function renderComposeSnippet(spec: ServiceSpec): string {
       - ./config:/config
     ports:
       - \"${appPort}:${appPort}\"
+${readOnlyBlock}
     restart: unless-stopped`;
 }

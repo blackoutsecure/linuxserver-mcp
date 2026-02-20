@@ -34,6 +34,22 @@ This project is community-maintained and follows LinuxServer.io standards and of
 4. `lsio.get_best_practices`
    - Returns implementation/review checklists aligned with LSIO community standards.
 
+5. `lsio.get_skillsets`
+  - Returns structured skillset profiles for discovery, maintenance, review, release, and docs workflows.
+
+6. `lsio.lookup_official_image`
+  - Checks if an image exists in the official LSIO catalog and returns docs-page signal metadata.
+
+7. `lsio.audit_image_compliance`
+  - Audits candidate spec/artifacts (Dockerfile, Compose, README) against LSIO standards.
+  - Returns checks, score, recommendations, and remediation scaffolds.
+
+8. `lsio.generate_dockerfile`
+  - Generates a standalone LSIO-oriented `Dockerfile` and returns validation findings.
+
+9. `lsio.get_optimization_ideas`
+  - Returns prioritized, LSIO-aligned improvement ideas for server, image, release, and quality tracks.
+
 ## Quick start
 
 ### Requirements
@@ -79,7 +95,19 @@ npm run dev
 1. Run `lsio.validate_spec` for your image metadata.
 2. Resolve validation errors/warnings.
 3. Run `lsio.generate_scaffold` for starter artifacts.
-4. Use `lsio.get_guidance_links` and `lsio.get_best_practices` before final review.
+4. Run `lsio.lookup_official_image` to verify official support status.
+5. Run `lsio.audit_image_compliance` with candidate artifacts to identify gaps and remediation.
+6. Use `lsio.generate_dockerfile` or `lsio.generate_scaffold` to apply adjustments.
+7. Use `lsio.get_guidance_links`, `lsio.get_best_practices`, and `lsio.get_skillsets` before final review.
+
+## Audit workflow for existing images
+
+Use this sequence to review whether an image is LSIO-aligned and how to fix it when not aligned:
+
+1. `lsio.lookup_official_image` with `imageName`.
+2. `lsio.audit_image_compliance` with service metadata and optional candidate artifacts.
+3. Apply `recommendations` and compare against `remediation` snippets.
+4. Regenerate `Dockerfile` with `lsio.generate_dockerfile` when a clean baseline is needed.
 
 ## Example spec
 
@@ -110,6 +138,18 @@ Primary standards source:
 MCP ecosystem source for additional tool integrations:
 
 - https://github.com/mcp
+
+## Recommended community skillsets
+
+For maintainers and contributors working on LSIO-style image workflows, these skillsets are recommended:
+
+- Image discovery: check official support first via https://www.linuxserver.io/our-images.
+- Image maintenance: verify upstream app changes, dependency updates, and LSIO docs impact before changing scaffolds.
+- Image review: validate base image choice, `/config` `/app` `/defaults`, `PUID`/`PGID`, read-only/volume guidance, and compose/run clarity.
+- Release readiness: run `npm run release:check` and `npm run release:pack` before publishing.
+- Community documentation: keep updates in this README and avoid duplicate markdown docs unless maintainers request them.
+
+When available, use MCP ecosystem servers from https://github.com/mcp to improve verification quality (for example GitHub workflows/reviews, docs retrieval, and container/compose analysis).
 
 ## Development and release
 
