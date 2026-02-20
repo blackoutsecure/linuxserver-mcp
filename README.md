@@ -76,6 +76,12 @@ npm install
 npm run build
 ```
 
+### Run tests
+
+```bash
+npm test
+```
+
 ### Run locally
 
 ```bash
@@ -161,13 +167,20 @@ This package is configured for GitHub Packages (`npm.pkg.github.com`).
 3. Build and publish:
 
 ```bash
-npm run build
+npm run release:check
+npm run release:pack
 npm publish
 ```
 
 ### CI publish
 
 Publishing workflow is available at `.github/workflows/publish-github-packages.yml` and can run on release publication.
+
+### Release docs
+
+- Changelog: `CHANGELOG.md`
+- Release process: `RELEASING.md`
+- Release notes template: `.github/release-template.md`
 
 ## Contributing
 

@@ -34,6 +34,12 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Test
+        run: npm test
+
+      - name: Validate package contents
+        run: npm pack --dry-run
+
       - name: Publish
         run: npm publish
         env:

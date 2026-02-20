@@ -70,6 +70,13 @@ When generating code, documentation, or examples in this repository, Copilot sho
 - Expose actionable outputs (checklists, snippets, validation issues) over narrative-only responses.
 - Include LSIO reference links in guidance-style tools when relevant.
 
+## Testing Standards
+- Add and maintain automated tests for validation and scaffold generation behavior.
+- Prefer Node.js built-in test runner for lightweight coverage unless additional framework capability is required.
+- Cover expected success paths and key LSIO policy failures (naming, ports, required directories, guidance shape).
+- Keep tests deterministic and fast for CI execution.
+- Update tests when tool contracts or output schemas change.
+
 ## LSIO Best-Practice Review Checklist
 - Confirm LSIO base image usage and s6-overlay assumptions.
 - Confirm required directories are represented (`/config`, `/app`, `/defaults`) where applicable.
@@ -77,6 +84,7 @@ When generating code, documentation, or examples in this repository, Copilot sho
 - Confirm read-only and volume guidance is addressed when filesystem behavior is impacted.
 - Confirm examples are practical for compose/run workflows and support policy language is accurate.
 - Confirm generated docs avoid claiming official LSIO endorsement unless explicitly approved.
+- Confirm `npm test` passes before merge or release.
 
 ## Skillset and Tooling Usage Guidance
 - When available, use workspace skills/tools relevant to the task domain.

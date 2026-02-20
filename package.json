@@ -1,6 +1,6 @@
 {
   "name": "@blackoutmode/linuxserver-mcp-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "LinuxServer.io MCP Server for Docker image scaffolding, templates, and convention validation.",
   "type": "module",
   "license": "GPL-3.0",
@@ -23,7 +23,11 @@
     "clean": "rm -rf dist",
     "dev": "tsx src/index.ts",
     "start": "node dist/index.js",
-    "check": "npm run build"
+    "check": "npm run build",
+    "pretest": "npm run build",
+    "test": "node --test dist/tests/*.test.js",
+    "release:check": "npm run build && npm test",
+    "release:pack": "npm pack --dry-run"
   },
   "keywords": [
     "mcp",
