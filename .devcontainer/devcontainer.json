@@ -1,0 +1,21 @@
+{
+  "name": "linuxserver-mcp-server",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm",
+  "postCreateCommand": "npm ci",
+  "updateContentCommand": "npm ci",
+  "postStartCommand": "bash -lc 'if [ ! -d node_modules ] || [ package-lock.json -nt node_modules ]; then npm ci; else echo \"Dependencies up to date\"; fi'",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker",
+        "github.vscode-github-actions",
+        "github.vscode-pull-request-github"
+      ]
+    }
+  }
+}
