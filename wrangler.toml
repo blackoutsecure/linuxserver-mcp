@@ -1,0 +1,14 @@
+name = "linuxserver-mcp-registry"
+main = "worker/src/index.ts"
+compatibility_date = "2026-08-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "replace-with-production-kv-id"
+preview_id = "replace-with-preview-kv-id"
+
+[vars]
+LSIO_API_BASE_URL = "https://api.linuxserver.io"
+CACHE_TTL_SECONDS = "3600"
+LOG_LEVEL = "info"

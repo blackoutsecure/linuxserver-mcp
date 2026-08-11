@@ -1,0 +1,24 @@
+name: Publish
+on:
+  workflow_dispatch:
+jobs:
+  publish:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npm run lint && npm test && npm run build
+      - name: Publish npm package
+        run: echo "Enable npm publish after configuring trusted publishing"
+      - name: Deploy Cloudflare Worker and Pages
+        run: echo "Enable Wrangler deployment after configuring Cloudflare secrets"
+      - name: Publish MCP registry metadata
+        run: echo "Enable MCP registry publishing after validating server.json"

@@ -1,0 +1,41 @@
+{
+  "name": "@blackoutsecure/linuxserver-mcp-registry",
+  "version": "0.1.0",
+  "description": "Community MCP server for LinuxServer.io image discovery, audits, and image request research.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "linuxserver-mcp-registry": "./dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "server.json",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "test": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blackoutsecure/linuxserver-mcp-registry.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.0.0",
+    "node-html-parser": "^9.0.1",
+    "yaml": "^2.8.1",
+    "zod": "^4.0.14"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

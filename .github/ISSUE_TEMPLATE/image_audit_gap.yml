@@ -1,0 +1,21 @@
+name: Image audit gap
+description: Report a documentation-grounded missing or incorrect audit check.
+body:
+  - type: input
+    id: image
+    attributes:
+      label: Image
+    validations:
+      required: true
+  - type: textarea
+    id: gap
+    attributes:
+      label: Audit gap
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Public LinuxServer.io documentation source
+    validations:
+      required: true

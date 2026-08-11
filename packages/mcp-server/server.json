@@ -1,0 +1,50 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.blackoutsecure/linuxserver-mcp-registry",
+  "title": "LinuxServer.io Image Registry MCP",
+  "description": "Community MCP server for discovering LinuxServer.io images, auditing Docker usage against LinuxServer.io documentation-derived conventions, and searching open and closed image requests before preparing new request drafts.",
+  "version": "0.1.0",
+  "websiteUrl": "https://linuxserver-mcp-registry.pages.dev",
+  "repository": {
+    "url": "https://github.com/blackoutsecure/linuxserver-mcp-registry",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://linuxserver-mcp-registry.blackoutsecure.workers.dev/mcp"
+    }
+  ],
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "@blackoutsecure/linuxserver-mcp-registry",
+      "version": "0.1.0",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        {
+          "name": "GITHUB_TOKEN",
+          "description": "Optional GitHub token used only for richer GitHub Discussions search and authenticated request lookups. The server must not automatically comment, react, or plus-one discussions.",
+          "isRequired": false,
+          "isSecret": true
+        },
+        {
+          "name": "LSIO_API_BASE_URL",
+          "description": "LinuxServer.io API base URL.",
+          "default": "https://api.linuxserver.io",
+          "isRequired": false,
+          "isSecret": false
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "publisher": "Blackout Secure",
+      "sponsorship": "Sponsored by Blackout Secure for the LinuxServer.io community",
+      "project_scope": "Community registry, image discovery, open and closed image request search, image request preparation, and documentation-derived audits. Not an official LinuxServer.io certification."
+    }
+  }
+}

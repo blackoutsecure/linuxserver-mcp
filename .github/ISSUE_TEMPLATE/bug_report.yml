@@ -1,0 +1,22 @@
+name: Bug report
+description: Report reproducible project behavior.
+body:
+  - type: markdown
+    attributes:
+      value: Do not include tokens, secrets, or unredacted logs.
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Observed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
