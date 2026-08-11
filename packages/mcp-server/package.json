@@ -17,16 +17,32 @@
   "files": [
     "dist",
     "server.json",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "start": "node dist/index.js",
-    "test": "vitest run"
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "linuxserver",
+    "docker",
+    "container",
+    "registry",
+    "ai",
+    "claude"
+  ],
+  "author": "Blackout Secure",
+  "homepage": "https://github.com/blackoutsecure/linuxserver-mcp-registry",
+  "bugs": {
+    "url": "https://github.com/blackoutsecure/linuxserver-mcp-registry/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/blackoutsecure/linuxserver-mcp-registry.git"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "test": "vitest run"
   },
   "license": "MIT",
   "dependencies": {

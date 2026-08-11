@@ -3,10 +3,19 @@ main = "worker/src/index.ts"
 compatibility_date = "2026-08-01"
 compatibility_flags = ["nodejs_compat"]
 
+# KV Namespace configuration for caching LinuxServer.io API responses
+# Create KV namespaces with: wrangler kv:namespace create "CACHE" --preview
+# Replace the IDs below with your actual KV namespace IDs from Cloudflare dashboard
 [[kv_namespaces]]
 binding = "CACHE"
-id = "replace-with-production-kv-id"
-preview_id = "replace-with-preview-kv-id"
+id = "default"          # Replace with production KV namespace ID
+preview_id = "default"  # Replace with preview KV namespace ID
+
+[env.production]
+[[env.production.kv_namespaces]]
+binding = "CACHE"
+id = "default"          # Set your production KV namespace ID here
+preview_id = "default"  # Set your preview KV namespace ID here
 
 [vars]
 LSIO_API_BASE_URL = "https://api.linuxserver.io"

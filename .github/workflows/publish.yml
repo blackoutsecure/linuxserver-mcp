@@ -1,9 +1,14 @@
 name: Publish
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/mcp-server/package.json'
+      - 'server.json'
   workflow_dispatch:
 jobs:
   publish:
-    if: ${{ false }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -16,9 +21,28 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: npm ci
       - run: npm run lint && npm test && npm run build
+
       - name: Publish npm package
-        run: echo "Enable npm publish after configuring trusted publishing"
-      - name: Deploy Cloudflare Worker and Pages
-        run: echo "Enable Wrangler deployment after configuring Cloudflare secrets"
-      - name: Publish MCP registry metadata
-        run: echo "Enable MCP registry publishing after validating server.json"
+        run: npm publish --workspace=@blackoutsecure/linuxserver-mcp-registry --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Deploy Cloudflare Worker
+        if: success()
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        working-directory: worker
+
+      - name: Deploy Cloudflare Pages
+        if: success()
+        uses: cloudflare/wrangler-action@v3
+        with:
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          preCommands: npm ci
+          command: pages deploy apps/web/dist --project-name=linuxserver-mcp-registry
+          secrets: |
+            CLOUDFLARE_API_TOKEN
+            CLOUDFLARE_ACCOUNT_ID
