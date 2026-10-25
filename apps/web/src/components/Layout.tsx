@@ -26,7 +26,7 @@ export function Layout() {
         <NavLink to="/" className="brand">
           <Box />
           <span>
-            LSIO <strong>Registry</strong>
+            LSIO <strong>MCP</strong>
           </span>
         </NavLink>
         <button

@@ -1,9 +1,9 @@
 {
   "servers": {
-    "linuxserver-registry": {
+    "linuxserver-mcp": {
       "type": "stdio",
       "command": "node",
-      "args": ["${workspaceFolder}/packages/mcp-server/dist/index.js"]
+      "args": ["${workspaceFolder}/packages/mcp-server/dist/cli.js"]
     }
   }
 }

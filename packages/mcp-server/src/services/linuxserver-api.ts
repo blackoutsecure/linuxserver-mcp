@@ -9,7 +9,7 @@ export function normalizeImageName(value: string): string {
     .replace(/^https?:\/\//, '')
     .replace(/^(lscr\.io|ghcr\.io|docker\.io)\//, '')
     .replace(/^linuxserver\//, '')
-    .split(':')[0];
+    .split(/[:@]/)[0];
 }
 
 const strings = (value: unknown, objectKey?: string): string[] | undefined => {
@@ -78,7 +78,7 @@ export async function fetchImages(
         {
           headers: {
             Accept: 'application/json',
-            'User-Agent': 'linuxserver-mcp-registry/0.1.0'
+            'User-Agent': 'linuxserver-mcp/0.1.0'
           }
         }
       );

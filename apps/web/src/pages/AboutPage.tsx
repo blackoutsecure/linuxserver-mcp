@@ -16,7 +16,7 @@ export function AboutPage() {
     <section>
       <div className="page-heading">
         <span>Project boundaries</span>
-        <h1>About this registry</h1>
+        <h1>About LinuxServer MCP</h1>
         <p>
           Provided by Blackout Secure and sponsored by Blackout Secure for the
           LinuxServer.io community.
@@ -28,6 +28,16 @@ export function AboutPage() {
         LinuxServer.io certification, support decision, or approval decision.
       </p>
       <div className="prose">
+        <h2>One canonical project</h2>
+        <p>
+          <a href="https://github.com/blackoutsecure/linuxserver-mcp">
+            LinuxServer MCP
+          </a>{' '}
+          combines the image registry and container authoring tools. All 22
+          tools are available through MCP, including scaffolding, validation,
+          and development guidance. This web interface covers image discovery,
+          usage audits, and request research.
+        </p>
         <h2>Community scope</h2>
         <p>
           This project does not speak for LinuxServer.io. It does not certify

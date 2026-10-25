@@ -54,7 +54,7 @@ async function loadKnownIssues(
   const notices: string[] = [];
   try {
     const response = await fetcher(SOURCES.knownIssues, {
-      headers: { 'User-Agent': 'linuxserver-mcp-registry/0.1.0' }
+      headers: { 'User-Agent': 'linuxserver-mcp/0.1.0' }
     });
     if (!response.ok) throw new Error('Known issues request failed');
     items.push(...parseKnownIssuesHtml(await response.text()));
@@ -68,7 +68,7 @@ async function loadKnownIssues(
     try {
       const response = await fetcher(
         'https://status.linuxserver.io/api/v1/endpoints/statuses',
-        { headers: { 'User-Agent': 'linuxserver-mcp-registry/0.1.0' } }
+        { headers: { 'User-Agent': 'linuxserver-mcp/0.1.0' } }
       );
       if (!response.ok) throw new Error('Status request failed');
       const endpoints = (await response.json()) as Array<{

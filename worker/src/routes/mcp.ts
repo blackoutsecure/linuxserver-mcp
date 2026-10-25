@@ -1,4 +1,4 @@
-import { createMcpServer } from '@blackoutsecure/linuxserver-mcp-registry';
+import { createMcpServer } from '@blackoutsecure/linuxserver-mcp';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/server';
 import { Hono } from 'hono';
 import { apiCors } from '../middleware/cors.js';

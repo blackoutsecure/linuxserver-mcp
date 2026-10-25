@@ -11,6 +11,24 @@ import {
 import { getSupportLinks } from './services/support-links.js';
 
 export {
+  getBestPractices,
+  getGuidanceLinks,
+  getOptimizationIdeas,
+  getSkillsets
+} from './authoring/guidance.js';
+export {
+  auditImageCompliance,
+  lookupOfficialLsioImage
+} from './authoring/image-audit.js';
+export { scaffoldLsioService } from './authoring/scaffold.js';
+export {
+  renderComposeSnippet,
+  renderDockerfile,
+  renderReadmeSnippet
+} from './authoring/templates.js';
+export { validateLsioSpec } from './authoring/validation.js';
+
+export {
   auditCompose,
   auditImage,
   getImage,

@@ -1,17 +1,19 @@
 import { McpServer } from '@modelcontextprotocol/server';
 import { z } from 'zod';
+import { getServerJson } from '../registry/server-json.js';
 import * as schemas from '../schemas/tool-inputs.js';
 import * as tools from '../tools.js';
 
-const json = (value: unknown) => ({
+const json = (value: object) => ({
   content: [{ type: 'text' as const, text: JSON.stringify(value, null, 2) }],
-  structuredContent: value as Record<string, unknown>
+  structuredContent: { ...value }
 });
 
 export function createMcpServer() {
+  const { name, version } = getServerJson();
   const server = new McpServer({
-    name: 'io.github.blackoutsecure/linuxserver-mcp-registry',
-    version: '0.1.0'
+    name,
+    version
   });
   server.registerTool(
     'lsio.search_images',
@@ -124,6 +126,99 @@ export function createMcpServer() {
       inputSchema: schemas.supportLinksInput
     },
     async ({ context }) => json(tools.getSupportLinks(context))
+  );
+  server.registerTool(
+    'lsio.validate_spec',
+    {
+      description: 'Validate LinuxServer.io-oriented service metadata.',
+      inputSchema: schemas.serviceSpecInput
+    },
+    async (input) => json(tools.validateLsioSpec(input))
+  );
+  server.registerTool(
+    'lsio.generate_scaffold',
+    {
+      description:
+        'Generate LSIO-style Dockerfile, Compose, and README snippets.',
+      inputSchema: schemas.serviceSpecInput
+    },
+    async (input) => json(tools.scaffoldLsioService(input))
+  );
+  server.registerTool(
+    'lsio.get_guidance_links',
+    {
+      description: 'Return official LinuxServer.io documentation by topic.',
+      inputSchema: schemas.guidanceLinksInput
+    },
+    async ({ topic }) => json(tools.getGuidanceLinks(topic))
+  );
+  server.registerTool(
+    'lsio.get_best_practices',
+    {
+      description: 'Return LSIO implementation and review checklists.',
+      inputSchema: schemas.bestPracticesInput
+    },
+    async ({ profile }) => json(tools.getBestPractices(profile))
+  );
+  server.registerTool(
+    'lsio.get_skillsets',
+    {
+      description:
+        'Return discovery, maintenance, review, release, and documentation skillsets.',
+      inputSchema: schemas.skillsetsInput
+    },
+    async ({ profile }) => json(tools.getSkillsets(profile))
+  );
+  server.registerTool(
+    'lsio.get_optimization_ideas',
+    {
+      description:
+        'Return LSIO-aligned server, image, release, and quality improvement ideas.',
+      inputSchema: schemas.optimizationIdeasInput
+    },
+    async ({ scope }) => json(tools.getOptimizationIdeas(scope))
+  );
+  server.registerTool(
+    'lsio.lookup_official_image',
+    {
+      description: 'Check the official LSIO catalog and documentation signals.',
+      inputSchema: schemas.officialImageLookupInput
+    },
+    async ({ imageName }) =>
+      json(await tools.lookupOfficialLsioImage(imageName))
+  );
+  server.registerTool(
+    'lsio.audit_image_compliance',
+    {
+      description:
+        'Audit candidate image artifacts and return LSIO remediation scaffolds.',
+      inputSchema: schemas.complianceAuditInput
+    },
+    async (input) => {
+      const officialImage = input.checkOfficialImage
+        ? await tools.lookupOfficialLsioImage(input.imageName)
+        : undefined;
+      return json(tools.auditImageCompliance(input, officialImage));
+    }
+  );
+  server.registerTool(
+    'lsio.generate_dockerfile',
+    {
+      description:
+        'Generate an LSIO-style Dockerfile with validation findings.',
+      inputSchema: schemas.serviceSpecInput
+    },
+    async (input) =>
+      json({
+        fileName: 'Dockerfile',
+        dockerfile: tools.renderDockerfile(input),
+        validation: tools.validateLsioSpec(input),
+        nextSteps: [
+          'Place generated Dockerfile at repository root.',
+          'Add root/ service files and ensure /config volume behavior is documented.',
+          'Run lsio.audit_image_compliance with candidate artifacts before publishing.'
+        ]
+      })
   );
   return server;
 }

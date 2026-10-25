@@ -188,7 +188,7 @@ async function searchPublicPages(input: SearchInput, fetcher: typeof fetch) {
       );
       if (page > 1) url.searchParams.set('page', String(page));
       const response = await fetcher(url, {
-        headers: { 'User-Agent': 'linuxserver-mcp-registry/0.1.0' }
+        headers: { 'User-Agent': 'linuxserver-mcp/0.1.0' }
       });
       if (!response.ok)
         throw new Error('GitHub public discussion lookup failed');
@@ -211,7 +211,7 @@ async function graphqlRequest(
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
-      'User-Agent': 'linuxserver-mcp-registry/0.1.0'
+      'User-Agent': 'linuxserver-mcp/0.1.0'
     },
     body: JSON.stringify({ query, variables })
   });

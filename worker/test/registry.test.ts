@@ -10,13 +10,13 @@ describe('Worker registry', () => {
     expect(response.status).toBe(200);
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
     expect(((await response.json()) as any).servers[0].name).toBe(
-      'io.github.blackoutsecure/linuxserver-mcp-registry'
+      'io.github.blackoutsecure/linuxserver-mcp'
     );
   });
 
   it('returns latest and specific server metadata', async () => {
     const encoded = encodeURIComponent(
-      'io.github.blackoutsecure/linuxserver-mcp-registry'
+      'io.github.blackoutsecure/linuxserver-mcp'
     );
     expect(
       (await app.request(`/v0.1/servers/${encoded}/versions/latest`)).status

@@ -1,25 +1,19 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.blackoutsecure/linuxserver-mcp-registry",
-  "title": "LinuxServer.io Image Registry MCP",
-  "description": "Community MCP server for discovering LinuxServer.io images, auditing Docker usage against LinuxServer.io documentation-derived conventions, and searching open and closed image requests before preparing new request drafts.",
+  "name": "io.github.blackoutsecure/linuxserver-mcp",
+  "title": "LinuxServer.io MCP",
+  "description": "LinuxServer.io image discovery, audits, request research, scaffolding, and guidance.",
   "version": "0.1.0",
-  "websiteUrl": "https://linuxserver-mcp-registry.pages.dev",
+  "websiteUrl": "https://github.com/blackoutsecure/linuxserver-mcp",
   "repository": {
-    "url": "https://github.com/blackoutsecure/linuxserver-mcp-registry",
+    "url": "https://github.com/blackoutsecure/linuxserver-mcp",
     "source": "github"
   },
-  "remotes": [
-    {
-      "type": "streamable-http",
-      "url": "https://linuxserver-mcp-registry.blackoutsecure.workers.dev/mcp"
-    }
-  ],
   "packages": [
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
-      "identifier": "@blackoutsecure/linuxserver-mcp-registry",
+      "identifier": "@blackoutsecure/linuxserver-mcp",
       "version": "0.1.0",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
@@ -44,7 +38,7 @@
     "io.modelcontextprotocol.registry/publisher-provided": {
       "publisher": "Blackout Secure",
       "sponsorship": "Sponsored by Blackout Secure for the LinuxServer.io community",
-      "project_scope": "Community registry, image discovery, open and closed image request search, image request preparation, and documentation-derived audits. Not an official LinuxServer.io certification."
+      "project_scope": "Community registry, image discovery, request research, documentation-derived audits, container scaffolding, and development guidance. Not an official LinuxServer.io certification."
     }
   }
 }

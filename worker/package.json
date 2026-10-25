@@ -9,7 +9,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@blackoutsecure/linuxserver-mcp-registry": "0.1.0",
+    "@blackoutsecure/linuxserver-mcp": "0.1.0",
     "@modelcontextprotocol/server": "^2.0.0",
     "hono": "^4.8.10",
     "zod": "^4.0.14"

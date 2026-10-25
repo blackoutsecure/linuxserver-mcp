@@ -1,7 +1,7 @@
 import {
   configureExternalCache,
   type ExternalCache
-} from '@blackoutsecure/linuxserver-mcp-registry';
+} from '@blackoutsecure/linuxserver-mcp';
 import { Hono } from 'hono';
 import { ZodError } from 'zod';
 import { apiRoutes } from './routes/api.js';

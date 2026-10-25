@@ -15,7 +15,7 @@ import {
   searchImagesInput,
   searchRequestsInput,
   prepareRequestInput
-} from '@blackoutsecure/linuxserver-mcp-registry';
+} from '@blackoutsecure/linuxserver-mcp';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { apiCors } from '../middleware/cors.js';

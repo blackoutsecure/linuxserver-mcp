@@ -1,4 +1,4 @@
-name = "linuxserver-mcp-registry"
+name = "linuxserver-mcp"
 main = "worker/src/index.ts"
 compatibility_date = "2026-08-01"
 compatibility_flags = ["nodejs_compat"]

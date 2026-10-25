@@ -69,3 +69,56 @@ export const prepareRequestInput = z.object({
 export const supportLinksInput = z.object({
   context: z.enum(['docs', 'support', 'donate', 'status', 'all']).default('all')
 });
+
+export const serviceSpecInput = z.object({
+  imageName: z.string().min(2),
+  baseImage: z.enum(['alpine', 'ubuntu']).default('alpine'),
+  maintainer: z.string().optional(),
+  appPort: z.number().int().min(1).max(65535).optional(),
+  serviceName: z.string().optional(),
+  readOnlyRootFs: z.boolean().optional(),
+  includeHealthcheck: z.boolean().optional()
+});
+export const complianceAuditInput = serviceSpecInput.extend({
+  candidateDockerfile: z.string().max(200_000).optional(),
+  candidateCompose: z.string().max(200_000).optional(),
+  candidateReadme: z.string().max(200_000).optional(),
+  checkOfficialImage: z.boolean().default(true)
+});
+export const officialImageLookupInput = serviceSpecInput.pick({
+  imageName: true
+});
+export const guidanceLinksInput = z.object({
+  topic: z
+    .enum([
+      'all',
+      'base-image',
+      'permissions',
+      'read-only',
+      'support',
+      'compose',
+      'branding'
+    ])
+    .default('all')
+});
+export const bestPracticesInput = z.object({
+  profile: z
+    .enum([
+      'all',
+      'docker',
+      'permissions',
+      'filesystem',
+      'docs',
+      'review',
+      'skillsets'
+    ])
+    .default('all')
+});
+export const skillsetsInput = z.object({
+  profile: z
+    .enum(['all', 'discovery', 'maintenance', 'review', 'release', 'docs'])
+    .default('all')
+});
+export const optimizationIdeasInput = z.object({
+  scope: z.enum(['all', 'server', 'image', 'release', 'quality']).default('all')
+});

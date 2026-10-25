@@ -1,12 +1,13 @@
 import {
   getRegistryVersion,
+  getServerJson,
   listRegistryServers
-} from '@blackoutsecure/linuxserver-mcp-registry';
+} from '@blackoutsecure/linuxserver-mcp';
 import { Hono } from 'hono';
 import { registryCors } from '../middleware/cors.js';
 
 export const registryRoutes = new Hono();
-const registryName = 'io.github.blackoutsecure/linuxserver-mcp-registry';
+const registryName = getServerJson().name;
 registryRoutes.use('/v0.1/servers/*', registryCors);
 registryRoutes.use('/v0.1/servers', registryCors);
 registryRoutes.get('/v0.1/servers', (context) =>

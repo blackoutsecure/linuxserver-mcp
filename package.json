@@ -1,7 +1,8 @@
 {
-  "name": "@blackoutsecure/linuxserver-mcp-registry-workspace",
+  "name": "@blackoutsecure/linuxserver-mcp-workspace",
   "version": "0.1.0",
   "private": true,
+  "license": "GPL-3.0",
   "type": "module",
   "workspaces": [
     "apps/*",
@@ -9,11 +10,16 @@
     "worker"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run build --workspace=@blackoutsecure/linuxserver-mcp && npm run build --workspace=@blackoutsecure/linuxserver-mcp-worker && npm run build --workspace=@blackoutsecure/linuxserver-mcp-web",
     "dev": "npm run dev --workspace=@blackoutsecure/linuxserver-mcp-web",
+    "start": "npm run start --workspace=@blackoutsecure/linuxserver-mcp",
+    "typecheck": "tsc -b",
     "lint": "eslint . && prettier --check .",
+    "pretest": "npm run build --workspace=@blackoutsecure/linuxserver-mcp",
     "test": "vitest run",
     "test:watch": "vitest",
+    "release:check": "npm run lint && npm run typecheck && npm run build && npm test",
+    "release:pack": "npm pack --workspace=@blackoutsecure/linuxserver-mcp --dry-run",
     "format": "prettier --write ."
   },
   "devDependencies": {

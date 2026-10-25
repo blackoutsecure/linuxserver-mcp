@@ -1,12 +1,15 @@
 {
-  "name": "@blackoutsecure/linuxserver-mcp-registry",
+  "name": "@blackoutsecure/linuxserver-mcp",
+  "mcpName": "io.github.blackoutsecure/linuxserver-mcp",
   "version": "0.1.0",
-  "description": "Community MCP server for LinuxServer.io image discovery, audits, and image request research.",
+  "description": "Community MCP server for LinuxServer.io image discovery, audits, request research, scaffolding, and development guidance.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "linuxserver-mcp-registry": "./dist/index.js"
+    "linuxserver-mcp": "./dist/cli.js",
+    "linuxserver-mcp-registry": "./dist/cli.js",
+    "linuxserver-mcp-server": "./dist/cli.js"
   },
   "exports": {
     ".": {
@@ -18,7 +21,8 @@
     "dist",
     "server.json",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "NOTICE"
   ],
   "keywords": [
     "mcp",
@@ -31,20 +35,20 @@
     "claude"
   ],
   "author": "Blackout Secure",
-  "homepage": "https://github.com/blackoutsecure/linuxserver-mcp-registry",
+  "homepage": "https://github.com/blackoutsecure/linuxserver-mcp",
   "bugs": {
-    "url": "https://github.com/blackoutsecure/linuxserver-mcp-registry/issues"
+    "url": "https://github.com/blackoutsecure/linuxserver-mcp/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/blackoutsecure/linuxserver-mcp-registry.git"
+    "url": "git+https://github.com/blackoutsecure/linuxserver-mcp.git"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/index.js",
+    "start": "node dist/cli.js",
     "test": "vitest run"
   },
-  "license": "MIT",
+  "license": "GPL-3.0",
   "dependencies": {
     "@modelcontextprotocol/server": "^2.0.0",
     "node-html-parser": "^9.0.1",

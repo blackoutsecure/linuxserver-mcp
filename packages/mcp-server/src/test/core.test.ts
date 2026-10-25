@@ -24,6 +24,9 @@ describe('image normalization', () => {
       'sonarr'
     );
     expect(normalizeImageName('ghcr.io/linuxserver/radarr')).toBe('radarr');
+    expect(normalizeImageName('lscr.io/linuxserver/sonarr@sha256:abcdef')).toBe(
+      'sonarr'
+    );
   });
 
   it('normalizes API response fields without fabricating data', () => {

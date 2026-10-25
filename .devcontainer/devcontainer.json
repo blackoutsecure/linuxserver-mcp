@@ -1,0 +1,19 @@
+{
+  "name": "linuxserver-mcp",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "postCreateCommand": "npm ci && npm run build --workspace=@blackoutsecure/linuxserver-mcp",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker",
+        "github.vscode-github-actions",
+        "github.vscode-pull-request-github"
+      ]
+    }
+  }
+}
