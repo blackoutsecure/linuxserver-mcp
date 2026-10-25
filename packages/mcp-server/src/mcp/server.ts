@@ -1,5 +1,13 @@
 import { McpServer } from '@modelcontextprotocol/server';
 import { z } from 'zod';
+import {
+  AnalysisError,
+  auditRepository,
+  auditReportSchema,
+  inspectRepository,
+  repositoryInspectionSchema,
+  repositorySnapshotSchema
+} from '../core/index.js';
 import { getServerJson } from '../registry/server-json.js';
 import * as schemas from '../schemas/tool-inputs.js';
 import * as tools from '../tools.js';
@@ -8,6 +16,30 @@ const json = (value: object) => ({
   content: [{ type: 'text' as const, text: JSON.stringify(value, null, 2) }],
   structuredContent: { ...value }
 });
+const readOnlyAnnotations = {
+  readOnlyHint: true,
+  destructiveHint: false,
+  idempotentHint: true,
+  openWorldHint: true
+};
+const offlineAnnotations = { ...readOnlyAnnotations, openWorldHint: false };
+const draftMetadata = {
+  'io.github.blackoutsecure/tool-classification': 'deterministic-draft'
+};
+const safeResult = async (operation: () => object | Promise<object>) => {
+  try {
+    return json(await operation());
+  } catch (error) {
+    const detail =
+      error instanceof AnalysisError
+        ? { code: error.code, message: error.message }
+        : {
+            code: 'INTERNAL_ERROR',
+            message: 'Repository analysis failed. No changes were applied.'
+          };
+    return { ...json({ error: detail }), isError: true };
+  }
+};
 
 export function createMcpServer() {
   const { name, version } = getServerJson();
@@ -18,6 +50,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.search_images',
     {
+      annotations: readOnlyAnnotations,
       description: 'Search current LinuxServer.io images.',
       inputSchema: schemas.searchImagesInput
     },
@@ -26,6 +59,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.get_image',
     {
+      annotations: readOnlyAnnotations,
       description: 'Fetch normalized metadata for a LinuxServer.io image.',
       inputSchema: schemas.getImageInput
     },
@@ -34,6 +68,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.audit_image',
     {
+      annotations: readOnlyAnnotations,
       description:
         'Audit image usage as text against documentation-derived conventions.',
       inputSchema: schemas.auditImageInput
@@ -43,6 +78,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.audit_compose',
     {
+      annotations: readOnlyAnnotations,
       description:
         'Safely parse and audit LinuxServer.io services in Compose YAML.',
       inputSchema: schemas.auditComposeInput
@@ -53,6 +89,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.list_categories',
     {
+      annotations: readOnlyAnnotations,
       description: 'List image categories with counts and examples.',
       inputSchema: schemas.listCategoriesInput
     },
@@ -61,6 +98,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.get_known_issues',
     {
+      annotations: readOnlyAnnotations,
       description: 'Return known issue and status context links.',
       inputSchema: schemas.knownIssuesInput
     },
@@ -69,6 +107,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.search_image_requests',
     {
+      annotations: readOnlyAnnotations,
       description:
         'Search open, closed, or all Image Requests. Never comments or reacts.',
       inputSchema: schemas.searchRequestsInput
@@ -78,6 +117,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.pending_image_requests',
     {
+      annotations: readOnlyAnnotations,
       description: 'Search open Image Requests.',
       inputSchema: schemas.shortcutRequestsInput
     },
@@ -87,6 +127,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.closed_image_requests',
     {
+      annotations: readOnlyAnnotations,
       description: 'Search closed Image Requests for historical context.',
       inputSchema: schemas.shortcutRequestsInput
     },
@@ -96,6 +137,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.recommended_new_images',
     {
+      annotations: readOnlyAnnotations,
       description:
         'Provide community guidance about possible image request gaps.',
       inputSchema: schemas.recommendedImagesInput
@@ -105,6 +147,8 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.prepare_image_request',
     {
+      annotations: readOnlyAnnotations,
+      _meta: draftMetadata,
       description:
         'Prepare, but never submit, an Image Request Markdown draft.',
       inputSchema: schemas.prepareRequestInput
@@ -114,6 +158,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.image_pipeline',
     {
+      annotations: readOnlyAnnotations,
       description: 'Run current image, open/closed request, and issue checks.',
       inputSchema: schemas.imagePipelineInput
     },
@@ -122,6 +167,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.get_support_links',
     {
+      annotations: offlineAnnotations,
       description: 'Return LinuxServer.io community links.',
       inputSchema: schemas.supportLinksInput
     },
@@ -130,6 +176,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.validate_spec',
     {
+      annotations: offlineAnnotations,
       description: 'Validate LinuxServer.io-oriented service metadata.',
       inputSchema: schemas.serviceSpecInput
     },
@@ -138,6 +185,8 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.generate_scaffold',
     {
+      annotations: offlineAnnotations,
+      _meta: draftMetadata,
       description:
         'Generate LSIO-style Dockerfile, Compose, and README snippets.',
       inputSchema: schemas.serviceSpecInput
@@ -147,6 +196,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.get_guidance_links',
     {
+      annotations: offlineAnnotations,
       description: 'Return official LinuxServer.io documentation by topic.',
       inputSchema: schemas.guidanceLinksInput
     },
@@ -155,6 +205,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.get_best_practices',
     {
+      annotations: offlineAnnotations,
       description: 'Return LSIO implementation and review checklists.',
       inputSchema: schemas.bestPracticesInput
     },
@@ -163,6 +214,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.get_skillsets',
     {
+      annotations: offlineAnnotations,
       description:
         'Return discovery, maintenance, review, release, and documentation skillsets.',
       inputSchema: schemas.skillsetsInput
@@ -172,6 +224,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.get_optimization_ideas',
     {
+      annotations: offlineAnnotations,
       description:
         'Return LSIO-aligned server, image, release, and quality improvement ideas.',
       inputSchema: schemas.optimizationIdeasInput
@@ -181,6 +234,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.lookup_official_image',
     {
+      annotations: readOnlyAnnotations,
       description: 'Check the official LSIO catalog and documentation signals.',
       inputSchema: schemas.officialImageLookupInput
     },
@@ -190,6 +244,7 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.audit_image_compliance',
     {
+      annotations: readOnlyAnnotations,
       description:
         'Audit candidate image artifacts and return LSIO remediation scaffolds.',
       inputSchema: schemas.complianceAuditInput
@@ -204,6 +259,8 @@ export function createMcpServer() {
   server.registerTool(
     'lsio.generate_dockerfile',
     {
+      annotations: offlineAnnotations,
+      _meta: draftMetadata,
       description:
         'Generate an LSIO-style Dockerfile with validation findings.',
       inputSchema: schemas.serviceSpecInput
@@ -219,6 +276,39 @@ export function createMcpServer() {
           'Run lsio.audit_image_compliance with candidate artifacts before publishing.'
         ]
       })
+  );
+  server.registerTool(
+    'repo_inspect',
+    {
+      description:
+        'Inspect a bounded repository file snapshot. Read-only, offline; no host filesystem paths or repository execution.',
+      annotations: offlineAnnotations,
+      inputSchema: repositorySnapshotSchema,
+      outputSchema: repositoryInspectionSchema
+    },
+    async (input) => safeResult(() => inspectRepository(input))
+  );
+  server.registerTool(
+    'repo_audit',
+    {
+      description:
+        'Run policy v1 against a bounded repository snapshot, optionally limited to changed-file relevance. Returns evidence, suppressions and sources; never applies fixes.',
+      annotations: offlineAnnotations,
+      inputSchema: repositorySnapshotSchema,
+      outputSchema: auditReportSchema
+    },
+    async (input) => safeResult(() => auditRepository(input))
+  );
+  server.registerTool(
+    'release_status',
+    {
+      description:
+        'Read current LinuxServer API version, build timestamp and lifecycle metadata. Unknown fields remain null; this is not upstream application release history.',
+      annotations: readOnlyAnnotations,
+      inputSchema: schemas.getImageInput,
+      outputSchema: schemas.releaseStatusOutput
+    },
+    async ({ imageName }) => safeResult(() => tools.releaseStatus(imageName))
   );
   return server;
 }

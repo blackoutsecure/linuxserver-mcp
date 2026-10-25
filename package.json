@@ -1,6 +1,6 @@
 {
   "name": "@blackoutsecure/linuxserver-mcp-workspace",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "license": "GPL-3.0",
   "type": "module",
@@ -10,16 +10,19 @@
     "worker"
   ],
   "scripts": {
-    "build": "npm run build --workspace=@blackoutsecure/linuxserver-mcp && npm run build --workspace=@blackoutsecure/linuxserver-mcp-worker && npm run build --workspace=@blackoutsecure/linuxserver-mcp-web",
+    "build:tools": "npm run build --workspace=@blackoutsecure/linuxserver-mcp && npm run build --workspace=@blackoutsecure/linuxserver-mcp-cli && npm run build --workspace=@blackoutsecure/linuxserver-mcp-action",
+    "build": "npm run build:tools && npm run build --workspace=@blackoutsecure/linuxserver-mcp-worker && npm run build --workspace=@blackoutsecure/linuxserver-mcp-web",
     "dev": "npm run dev --workspace=@blackoutsecure/linuxserver-mcp-web",
     "start": "npm run start --workspace=@blackoutsecure/linuxserver-mcp",
+    "audit": "node packages/mcp-server/dist/command.js audit",
     "typecheck": "tsc -b",
     "lint": "eslint . && prettier --check .",
-    "pretest": "npm run build --workspace=@blackoutsecure/linuxserver-mcp",
+    "pretest": "npm run build:tools",
     "test": "vitest run",
     "test:watch": "vitest",
     "release:check": "npm run lint && npm run typecheck && npm run build && npm test",
     "release:pack": "npm pack --workspace=@blackoutsecure/linuxserver-mcp --dry-run",
+    "release:sbom": "npm sbom --workspace=@blackoutsecure/linuxserver-mcp --sbom-format=cyclonedx --omit=dev",
     "format": "prettier --write ."
   },
   "devDependencies": {
@@ -27,6 +30,7 @@
     "@eslint/js": "^9.32.0",
     "@types/node": "^24.1.0",
     "eslint": "^9.32.0",
+    "esbuild": "^0.28.2",
     "prettier": "^3.6.2",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.38.0",

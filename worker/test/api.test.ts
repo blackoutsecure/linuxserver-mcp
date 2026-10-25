@@ -17,4 +17,16 @@ describe('public API validation', () => {
     const response = await app.request('/api/known-issues?includeStatus=maybe');
     expect(response.status).toBe(400);
   });
+
+  it('rejects oversized POST bodies before parsing them', async () => {
+    const response = await app.request('/mcp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: 'x'.repeat(3_000_001)
+    });
+    expect(response.status).toBe(413);
+    expect(await response.json()).toMatchObject({
+      error: { code: 'RESOURCE_LIMIT' }
+    });
+  });
 });

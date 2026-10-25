@@ -4,125 +4,51 @@
 [![CI](https://github.com/blackoutsecure/linuxserver-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/blackoutsecure/linuxserver-mcp/actions/workflows/ci.yml)
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
-Community MCP server and registry UI for LinuxServer.io image discovery, container audits, image request research, scaffolding, validation, and development guidance.
+Bridge LinuxServer.io knowledge into MCP and GitHub. Audit accurately. Review intelligently. Automate responsibly.
 
-Provided by Blackout Secure and sponsored by Blackout Secure for the LinuxServer.io community.
+Community MCP server and GitHub review tooling for LinuxServer.io: image discovery, evidence-backed repository audits, request research, container authoring, and deterministic PR review.
 
-> Audit results are derived from public LinuxServer.io documentation and are intended as community guidance. They are not an official LinuxServer.io certification, support decision, or approval decision.
+> [!IMPORTANT]
+> **Community Project**
+>
+> `linuxserver-mcp` is an independent community project and is not affiliated with, endorsed by, sponsored by, or maintained by LinuxServer.io.
 
-## Canonical repository and migration
+Maintained by Blackout Secure for the community. Findings are not official LinuxServer policy, certification, support decisions, or request approvals.
 
-[blackoutsecure/linuxserver-mcp](https://github.com/blackoutsecure/linuxserver-mcp) is the canonical Blackout Secure repository for this project, not an official LinuxServer.io release.
+## Product and implementation status
 
-This repository consolidates:
+The shared policy/audit engine is the core product. MCP and GitHub are first-class interfaces; neither MCP nor AI is required to audit a repository.
 
-- [linuxserver-mcp-registry](https://github.com/blackoutsecure/linuxserver-mcp-registry) at `7ad877a`: image discovery, usage audits, request research, the registry UI, and the Cloudflare Worker.
-- [blackoutsecure/linuxserver-mcp-server](https://github.com/blackoutsecure/linuxserver-mcp-server) at `eaa5b0c`: container authoring tools.
-- [blackoutmode/linuxserver-mcp-server](https://github.com/blackoutmode/linuxserver-mcp-server) at `6eb7188`, including its local checkout: the same authoring implementation, its fuller usage documentation, and the dev container.
+| Component                                                                                   | Current status                                                                                                        |
+| ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Policy/audit core                                                                           | Versioned policy v1, 12 sourced rules, normalized evidence, configuration, suppressions, and diff-aware relevance.    |
+| CLI                                                                                         | Local audit/review with text, JSON, GitHub annotations, and SARIF. No LLM or network required.                        |
+| MCP server                                                                                  | 25 tools over stdio and stateless Streamable HTTP `/mcp`; 22 legacy names retained.                                   |
+| GitHub Action                                                                               | Bundled Node.js Action; read-only PR-file lookup, deterministic review, workflow annotations, JSON and SARIF reports. |
+| Registry UI/Worker                                                                          | Image discovery, usage audits, and request research. Local runtime supported; deployment is optional.                 |
+| GitHub App/custom Check Runs                                                                | Planned beta work, not implemented or deployed. Action annotations currently use the workflow's own check.            |
+| Prepared fixes, approved writes, fork/PR automation                                         | Planned, not exposed. No tool applies changes or posts to GitHub.                                                     |
+| Full SBOM/attestation inspection, semantic duplicates, upstream application release history | Future extensions, not implied by the current checks.                                                                 |
 
-The source histories are retained. The original repositories and local checkouts are not deleted or archived. Duplicate authoring code is imported once under `packages/mcp-server/src/authoring/`; there is one MCP server implementation and one npm lockfile.
+## Architecture
 
-For existing clients, switch the package name to `@blackoutsecure/linuxserver-mcp`. The installed command aliases `linuxserver-mcp-registry` and `linuxserver-mcp-server` remain available alongside `linuxserver-mcp`. For local Node clients, use `packages/mcp-server/dist/cli.js`, not the library entry point `dist/index.js`. All 22 original tool names are retained.
-
-## What this project does
-
-This project helps users and AI assistants:
-
-- Search LinuxServer.io images and inspect normalized metadata.
-- Audit Docker Compose and `docker run` text against documented LinuxServer.io-style conventions.
-- Search open and closed LinuxServer.io Image Requests before creating duplicates.
-- Prepare image request drafts without submitting them.
-- Surface known issues, status, support, documentation, and donation links.
-- Validate LSIO-style service metadata and generate Dockerfile, Compose, and README scaffolds.
-- Audit candidate image artifacts and return remediation snippets.
-- Provide documentation links, best-practice checklists, skillsets, and optimization ideas.
-- Publish an MCP server through the GitHub MCP Registry ecosystem.
-
-## Features
-
-The monorepo contains a TypeScript MCP stdio package, a Hono Cloudflare Worker with Streamable HTTP and REST routes, and a React Cloudflare Pages registry UI. The stdio and HTTP transports expose the same 22 MCP tools. The web UI retains the image discovery, usage audit, and request research workflows. All external lookups are best effort and retain source links. GitHub access is read-only.
-
-## MCP tools
-
-| Tool                          | Purpose                                                            |
-| ----------------------------- | ------------------------------------------------------------------ |
-| `lsio.search_images`          | Search current image metadata.                                     |
-| `lsio.get_image`              | Fetch one normalized image record.                                 |
-| `lsio.audit_image`            | Audit an image and optional Compose or run text.                   |
-| `lsio.audit_compose`          | Parse Compose YAML and audit LinuxServer.io services.              |
-| `lsio.list_categories`        | List categories, counts, and examples.                             |
-| `lsio.get_known_issues`       | Return known-issue and service-status context.                     |
-| `lsio.search_image_requests`  | Search open, closed, or all Image Requests.                        |
-| `lsio.pending_image_requests` | Search open Image Requests.                                        |
-| `lsio.closed_image_requests`  | Search closed Image Requests.                                      |
-| `lsio.recommended_new_images` | Compare inventory and request history for possible gaps.           |
-| `lsio.prepare_image_request`  | Prepare a Markdown draft without posting it.                       |
-| `lsio.image_pipeline`         | Run the complete inventory/request/issue decision workflow.        |
-| `lsio.get_support_links`      | Return useful LinuxServer.io community links.                      |
-| `lsio.validate_spec`          | Validate LSIO-style service metadata.                              |
-| `lsio.generate_scaffold`      | Generate Dockerfile, Compose, and README snippets.                 |
-| `lsio.get_guidance_links`     | Return official LSIO documentation by topic.                       |
-| `lsio.get_best_practices`     | Return implementation and review checklists.                       |
-| `lsio.get_skillsets`          | Return discovery, maintenance, review, release, and docs profiles. |
-| `lsio.lookup_official_image`  | Check official image listing and documentation signals.            |
-| `lsio.audit_image_compliance` | Audit candidate artifacts and return remediation scaffolds.        |
-| `lsio.generate_dockerfile`    | Generate a Dockerfile with validation findings.                    |
-| `lsio.get_optimization_ideas` | Return scoped improvement ideas.                                   |
-
-The two audit families remain distinct: `audit_image` and `audit_compose` inspect deployed usage, while `audit_image_compliance` inspects candidate Dockerfile, Compose, and README artifacts. Guidance is not certification.
-
-## Container authoring workflow
-
-1. Call `lsio.validate_spec` with a service specification.
-2. Resolve validation errors, then call `lsio.generate_scaffold` or `lsio.generate_dockerfile`.
-3. Use `lsio.lookup_official_image` to check whether an official image already exists.
-4. Call `lsio.audit_image_compliance` with candidate artifacts and apply its recommendations.
-5. Review the relevant guidance, best practices, and skillsets before publishing.
-
-Example service specification:
-
-```json
-{
-  "imageName": "sampleapp",
-  "baseImage": "alpine",
-  "appPort": 8080,
-  "serviceName": "sampleapp",
-  "readOnlyRootFs": false,
-  "includeHealthcheck": true
-}
+```text
+                         +-- MCP stdio / HTTP
+                         |
+Portable policy core ----+-- Local CLI
+                         |
+                         +-- GitHub Action / deterministic PR review
+                         |
+                         +-- text / JSON / annotations / SARIF
 ```
 
-Scaffolds are returned as text, never written to disk or executed. They include the `/config`, `/app`, `/defaults`, and `root/` directory checklist. Set `checkOfficialImage: false` for an offline candidate-artifact audit.
+- `packages/mcp-server/src/core/`: schemas, inspection, policy v1, findings, suppression, and report formats.
+- `apps/cli/`: bounded local filesystem adapter and CLI.
+- `apps/github-action/`: bounded GitHub reads and Action adapter; no Action-specific policies.
+- `packages/mcp-server/src/mcp/`: MCP interface; `services/`: data adapters and legacy usage checks.
+- `worker/` and `apps/web/`: Cloudflare HTTP and registry UI.
 
-## How image request search works
-
-The server searches GitHub's public Image Requests category. When `GITHUB_TOKEN` is available it uses the backing repository's read-only GraphQL discussion connection for richer metadata. Without a token it parses the public open and closed category pages and returns a clear best-effort notice. A token is never required for basic image, request-search, or audit functionality.
-
-Search is read-only. The project never comments, reacts, submits, or plus-ones a discussion.
-
-## Why closed requests are searched
-
-Closed discussions can document a duplicate, rejection, accepted request, superseded proposal, or an image that was added later. The pipeline checks both open and closed requests before describing a new request as potentially reasonable.
-
-## How audits work
-
-Compose YAML is parsed with a safe YAML parser and `docker run` commands are inspected as plain text. Neither is executed. Results describe whether input passes this project's checks; they never claim a container is secure or officially approved.
-
-## Audit rubric
-
-Checks cover image existence, `/config` persistence, host-to-container volume direction, PUID/PGID, TZ, Compose restart policy, port exposure, privileged mode, Docker socket and broad host mounts, host networking, possible inline secrets, ambiguous tags, Docker Mods, custom init/services, branding review, update guidance, and support readiness.
-
-## Data sources
-
-- [LinuxServer.io](https://www.linuxserver.io/)
-- [API documentation](https://docs.linuxserver.io/API/)
-- [Image catalog](https://www.linuxserver.io/our-images)
-- [Images by category](https://docs.linuxserver.io/images-by-category/)
-- [Image Requests](https://github.com/orgs/linuxserver/discussions/categories/image-requests)
-- [Known issues](https://info.linuxserver.io/)
-- [Status dashboard](https://status.linuxserver.io/)
-- [Support](https://www.linuxserver.io/support)
-- [Donate](https://www.linuxserver.io/donate)
+One publishable package and the established npm lockfile are retained. Empty packages, a second package manager, App scaffolds, and write endpoints are deliberately not introduced. See [ADR 0001](docs/adr/0001-shared-engine-and-safe-interfaces.md) and [contributor instructions](.github/copilot-instructions.md).
 
 ## Local development
 
@@ -136,84 +62,208 @@ npm run lint
 npm run typecheck
 ```
 
-Start the stdio server:
+`npm start` launches stdio MCP. `npm run dev` starts the UI; run the Worker separately with `npm run dev --workspace=@blackoutsecure/linuxserver-mcp-worker`. The UI proxies `/api` to Worker port 8787.
+
+The dev container installs dependencies and builds the MCP package. [VS Code configuration](.vscode/mcp.json) launches the legacy-compatible stdio entry point.
+
+## CLI
+
+After building, from the repository root:
 
 ```bash
-npm start
+npm run audit -- . --format text
+node packages/mcp-server/dist/command.js audit . --format json
+node packages/mcp-server/dist/command.js audit . --format github
+node packages/mcp-server/dist/command.js audit . --format sarif --output linuxserver-mcp.sarif
 ```
 
-Start the registry UI:
+After publication, the equivalent installed command is `linuxserver-mcp audit .`, or `npx @blackoutsecure/linuxserver-mcp audit .`.
+
+For a diff-aware local review, create a JSON array of changed relative paths, then:
 
 ```bash
-npm run dev
+linuxserver-mcp review . --changed-files changed-paths.json --format text
 ```
 
-Run the Worker separately with `npm run dev --workspace=@blackoutsecure/linuxserver-mcp-worker`. The web dev server proxies `/api` to Worker port `8787`. VS Code can launch the stdio MCP package using [.vscode/mcp.json](.vscode/mcp.json).
+Commands never execute or modify repository files. `--output` creates a new report and refuses to overwrite an existing file. Formats are projections of the same findings. Paths in local reports are relative to the analyzed directory.
 
-The dev container uses Node.js 22 and installs/builds the MCP package on creation. `npm run release:check` runs the complete local validation gate; `npm run release:pack` checks the npm package contents without publishing.
+Exit codes: **0** analysis completed without crossing the configured threshold, **1** threshold reached, **2** invalid input or runtime/upstream error. A `not_applicable` report explicitly means no supported container sources were found, not a successful container certification.
 
-## Cloudflare deployment
+`--fail-on error|warning|info|none` overrides the repository failure threshold. Warning/info thresholds include higher severities; `none` is an explicit opt-out, never the default. No arguments, or `stdio`, still starts MCP for existing clients.
 
-Run Wrangler commands from the repository root; no global install is required.
+## Repository policy configuration
 
-1. Create cache namespaces with `npx wrangler kv namespace create CACHE` and `npx wrangler kv namespace create CACHE --preview`.
-2. Replace all placeholder KV IDs in [wrangler.toml](wrangler.toml), including any production environment overrides you intend to use.
-3. Store an optional read-only `GITHUB_TOKEN` with `npx wrangler secret put GITHUB_TOKEN`.
-4. Deploy the Worker with `npx wrangler deploy` and verify its `/health` and `/mcp` endpoints.
-5. Set `VITE_API_BASE_URL` to the actual Worker origin, build the web workspace, then deploy `apps/web/dist` with `npx wrangler pages deploy apps/web/dist --project-name=linuxserver-mcp`. Create the Pages project in your account first if needed.
-6. After verification, update `websiteUrl` and add the deployed Streamable HTTP `/mcp` URL under `remotes` in both copies of `server.json`.
+Copy [the example](examples/linuxserver-mcp.yml) to `.github/linuxserver-mcp.yml`. The version is required and unknown keys fail validation.
 
-This import does not publish npm packages, deploy Cloudflare resources, or claim that a new public endpoint is live. Old deployment URLs are deliberately not advertised by the canonical manifests.
+```yaml
+version: 1
+policy:
+  profile: recommended
+review:
+  changed_files_only: true
+severity:
+  fail_on: [error]
+agent:
+  enabled: false
+  suggestions: false
+  automatic_writes: false
+```
 
-## MCP Registry publishing
+Profiles: `recommended` includes all implemented rules; `linuxserver` excludes general security/supply-chain advisories; `security` selects those advisories only. Checks can be disabled individually. Disabled/non-relevant rules are listed in reports.
 
-[server.json](server.json) and its package copy declare `io.github.blackoutsecure/linuxserver-mcp` and `@blackoutsecure/linuxserver-mcp`. Keep both manifests and the package version aligned. The package includes the required `mcpName`, license, and attribution notice.
+Suppressions use a stable rule ID, exact relative evidence paths, and a non-empty reason. Suppressed findings remain visible, including SARIF suppressions. Invalid-source rules cannot be suppressed. `automatic_writes: true` and `review_comments: true` are rejected; agent settings do not activate an unimplemented agent.
 
-Publishing is manual through the **Publish** workflow on `main`, never triggered by an import or ordinary push. Select npm or GitHub Packages:
+## Policy v1
 
-- npm requires the canonical repository's `NPM_TOKEN` publishing secret.
-- GitHub Packages uses that repository's `GITHUB_TOKEN` with package-write permission.
-- Optional Cloudflare deployment additionally requires `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, configured KV IDs, and the `VITE_API_BASE_URL` repository variable.
+The catalogue checks:
 
-After publication, clients can use `npx @blackoutsecure/linuxserver-mcp`. Validate the installed package and any advertised remote transport before submitting metadata to the official [MCP Registry](https://registry.modelcontextprotocol.io/). GitHub repository migration alone does not publish or transfer an npm package, MCP Registry listing, deployment, or secret.
+- Explicit generated-file markers against README/build source changes.
+- Safe README, Jenkins, and Compose metadata parsing.
+- Literal final-stage Dockerfile ports versus README ports.
+- Recognized architecture-specific Dockerfiles versus explicit architecture metadata.
+- Literal CI test ports versus README ports.
+- Compose usage contradicting explicitly unsupported read-only/non-root metadata.
+- Explicit s6-rc type definitions and missing longrun scripts in complete snapshots.
+- Custom downstream image branding without the documented setting.
+- Literal world-writable permissions and remote-script-to-shell pipelines as **general security advice/heuristics**, not LinuxServer policy.
 
-## GitHub Copilot organization registry support
+See [rule IDs, sources, applicability, and limitations](docs/policies/v1.md). Every finding carries policy version, severity, confidence, classification, evidence, source links, and manual remediation. Cross-file findings retain both sides.
 
-The Worker implements:
+Missing metadata stays unknown. There are no universal PUID/PGID, `/config`, healthcheck, read-only, or non-root requirements in this repository policy engine. Legacy scaffold/usage tools retain their explicitly opinionated project checklists; those are not official requirements.
 
-- `GET /v0.1/servers`
-- `GET /v0.1/servers/{serverName}/versions/latest`
-- `GET /v0.1/servers/{serverName}/versions/{version}`
+## GitHub Action and PR review
 
-These endpoints allow `GET` and `OPTIONS` cross-origin requests with `Authorization` and `Content-Type` headers.
+The root [action.yml](action.yml) runs a committed standalone bundle. Consumers do not install dependencies or execute files from the reviewed repository.
 
-## Environment variables
+After the canonical repository is published and a reviewed version exists:
 
-| Variable            | Default                      | Use                                          |
-| ------------------- | ---------------------------- | -------------------------------------------- |
-| `LSIO_API_BASE_URL` | `https://api.linuxserver.io` | Image metadata API origin.                   |
-| `GITHUB_TOKEN`      | unset                        | Optional richer read-only discussion search. |
-| `CACHE_TTL_SECONDS` | `3600`                       | External lookup cache lifetime.              |
-| `LOG_LEVEL`         | `info`                       | Runtime logging threshold.                   |
+```yaml
+name: LinuxServer Review
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: blackoutsecure/linuxserver-mcp@v1 # After release; pin a reviewed full SHA in production.
+        id: review
+        with:
+          mode: review
+          policy: recommended
+          annotate: true
+          fail-on: error
+```
 
-Tokens are never stored or printed and are not used for discussion mutations.
+No `checks: write`, comment, contents-write, or App permissions are needed for workflow annotations. A separate optional Code Scanning upload needs `security-events: write` and the repository's normal fork/Code Scanning permissions. SARIF generation itself requires neither GitHub nor upload permission.
 
-## Security model
+Inputs include `path`, `mode: audit|review`, optional policy/threshold overrides, `annotate`, optional read-only `token`, and optional `changed-files` JSON. Review without an explicit path list reads PR files through the fixed GitHub API, checks head/base revisions before and after pagination, and fails if stale or incomplete. Renames include both paths. Subdirectory annotations remain workspace-relative.
 
-All tool inputs are validated with Zod. User-provided Compose, Docker, and shell-like text is never executed. Public write-like endpoints are rate limited. Secrets are neither persisted nor logged. Drafts are shown to the caller only and are never submitted automatically. See [SECURITY.md](SECURITY.md).
+Outputs: `sarif-file`, `findings`, `failed`. SARIF and JSON are written under `RUNNER_TEMP`; summaries respect repository configuration. Findings never produce PR comments, commits, fixes, or custom Check Runs. `pull_request_target` and mutation modes are rejected.
 
-## Rate limiting and caching
+Use the normal event-revision checkout before review. The Action audits the
+local snapshot you provide; GitHub revision reads validate the changed-file
+context, not the identity of arbitrary local edits. Require maintainer review
+for policy-configuration changes, including suppressions and disabled rules.
 
-Audit, pipeline, draft, and MCP POST routes use per-client in-memory rate limiting. External image, request, issue, and status responses are cached in-process and in the configured Cloudflare KV namespace. Multi-isolate production deployments should move rate-limit counters to a durable Cloudflare service.
+## MCP tools
 
-## Contributing
+All tools are read-only or deterministic drafts. See [per-tool inputs, outputs, auth, sources, failures, and examples](docs/tools.md).
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md), follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), and include focused tests for behavior changes.
+| Tool                          | Purpose                                                                      |
+| ----------------------------- | ---------------------------------------------------------------------------- |
+| `repo_inspect`                | Inspect a bounded file snapshot, generated sources, and capability metadata. |
+| `repo_audit`                  | Run the exact CLI/Action policy engine on a snapshot, optionally diff-aware. |
+| `release_status`              | Read API version/build/lifecycle metadata; unknown fields are null.          |
+| `lsio.search_images`          | Search structured LinuxServer API metadata.                                  |
+| `lsio.get_image`              | Fetch a normalized image record.                                             |
+| `lsio.audit_image`            | Inspect supplied usage text using legacy project guidance.                   |
+| `lsio.audit_compose`          | Audit LinuxServer services in Compose text.                                  |
+| `lsio.list_categories`        | List available image categories.                                             |
+| `lsio.get_known_issues`       | Read known-issue/status context.                                             |
+| `lsio.search_image_requests`  | Research open/closed Image Requests.                                         |
+| `lsio.pending_image_requests` | Open-request compatibility shortcut.                                         |
+| `lsio.closed_image_requests`  | Closed-request compatibility shortcut.                                       |
+| `lsio.recommended_new_images` | Compare available images and request history.                                |
+| `lsio.prepare_image_request`  | Draft only; never submit.                                                    |
+| `lsio.image_pipeline`         | Combine inventory, request history, and issues.                              |
+| `lsio.get_support_links`      | Return community support/documentation links.                                |
+| `lsio.validate_spec`          | Validate scaffold input.                                                     |
+| `lsio.generate_scaffold`      | Return Dockerfile, Compose, and README starter text.                         |
+| `lsio.get_guidance_links`     | Return official documentation references.                                    |
+| `lsio.get_best_practices`     | Return project review checklists.                                            |
+| `lsio.get_skillsets`          | Return community workflow profiles.                                          |
+| `lsio.lookup_official_image`  | Check the structured API and optional docs text signals.                     |
+| `lsio.audit_image_compliance` | Legacy artifact checklist and remediation scaffolds.                         |
+| `lsio.generate_dockerfile`    | Return Dockerfile text and validation.                                       |
+| `lsio.get_optimization_ideas` | Return project improvement ideas.                                            |
 
-## Support boundaries
+Remote repository tools accept files as data, not host paths or arbitrary repository URLs. CLI-local reading is not exposed through MCP.
 
-Use this repository's issue tracker for project bugs. Use LinuxServer.io's own documentation and support channels for container support. Blackout Secure does not speak for LinuxServer.io, and this project cannot approve or reject image requests.
+Image requests remain best-effort, read-only public research. Optional GitHub authentication enriches Discussions metadata; no basic image/audit operation requires a token. Current matching is keyword-based, not a complete alias/semantic/feasibility system. Closed requests are checked before suggesting drafts, and incomplete searches are disclosed. No low-value comments or automatic submissions are encouraged.
 
-## License
+## Safety and resource limits
 
-GPL-3.0 for the combined project. The original MIT registry attribution and permission notice are preserved in [NOTICE](NOTICE), including in the npm package. See [LICENSE](LICENSE).
+Repository text is data, never instructions. Dockerfiles, YAML, scripts, and Compose are never executed. The core has no filesystem, hosting, or GitHub dependency.
+
+| Boundary               | Limit                                                                                                                 |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Snapshot               | 256 files; 256,000 UTF-8 bytes/file; 2,000,000 bytes total.                                                           |
+| Changed paths          | 500, including rename sources.                                                                                        |
+| Analysis amplification | 1,000 findings; 256 consumed metadata items/services. Oversized analysis fails explicitly, never as a truncated pass. |
+| Local discovery        | Relevant source directories only; 10,000 entries, depth 24, 15-second traversal budget; no repository symlinks.       |
+| Worker request body    | 3,000,000 bytes, rejected before JSON parsing.                                                                        |
+| API/docs client        | Allowlisted HTTPS origins, no redirects, 8-second timeout; 4 MB catalogue / 1 MB optional documentation response.     |
+| Action GitHub reads    | Fixed HTTPS GitHub API, no redirects; 8 seconds/request, 1 MB/response, at most five file pages plus revision reads.  |
+
+Structured API failures are errors, not empty successful catalogues or negative official-image lookups. Unknown lifecycle/capability fields remain unknown. New findings never include raw secret-bearing source lines. GitHub workflow-command values are escaped.
+
+The legacy public Discussions/known-issue adapters remain best-effort sources, not authoritative policy or a complete supply-chain/security assessment. Multi-isolate rate limiting still requires a deliberate production design; the current Worker limiter is in-memory. See [SECURITY.md](SECURITY.md).
+
+## Deployment and publishing
+
+Nothing is deployed or published by importing this repository. Current metadata deliberately advertises no unverified remote endpoint.
+
+- Configure real KV IDs in [wrangler.toml](wrangler.toml), then use root-local `npx wrangler` commands.
+- Store optional GitHub read credentials as deployment secrets, preferably GitHub App credentials in a production design.
+- Deploy the Worker, verify `/health` and `/mcp`, and build/deploy the UI with `VITE_API_BASE_URL` set to the actual Worker origin.
+- Only then update the website/remote transport metadata in both `server.json` copies.
+
+`LSIO_API_BASE_URL` is restricted to the official `https://api.linuxserver.io` origin; it is not an arbitrary proxy/SSRF escape hatch. `CACHE_TTL_SECONDS` accepts 1-86400 (default 3600). An optional `GITHUB_TOKEN` is used for public Discussion reads, never mutations.
+
+`npm run release:check` validates the workspace; `npm run release:pack` previews the publishable package; `npm run release:sbom` emits a CycloneDX SBOM. CI validates the shipped Action bundle and dogfoods the Action. Dependency review, CodeQL, and Dependabot are configured separately.
+
+The **Publish** workflow is manual and main-only. Prefer npm trusted publishing/OIDC; an npm publishing secret remains a fallback. GitHub Packages uses the repository's package-scoped token. Cloudflare deployment is separately opted in and requires configured IDs, credentials, and `VITE_API_BASE_URL`.
+
+The npm package, MCP Registry, GitHub Packages, GHCR, GitHub Marketplace/App, and GitHub Releases are distinct. A repository migration transfers none of those automatically. See the [operational handover checklist](docs/transfer.md).
+
+## Phases
+
+- **Current foundation:** discovery/request research, policy v1, CLI, stdio/HTTP, read-only Action review, SARIF, fixtures, and protocol/adapter tests.
+- **Remaining MVP depth:** broader authoritative metadata, repository/supply-chain inspection, alias/upstream-aware duplicate detection, and request feasibility. Add rules only with evidence and tests.
+- **Beta:** GitHub App, custom Check Runs, richer PR explanations, authenticated reads, and exact-hash prepared operations. No write feature is implied by this roadmap.
+- **Advanced:** only after authorization and approval tests, approved Discussions/meaningful comments, fork/PR preparation, policy synchronization, and organization adoption.
+
+Any future mutation must prepare, validate, check duplicates/authorization, show the exact operation, obtain explicit human approval bound to its immutable hash, execute, and record the result. Modified operations invalidate approval. Workflow edits require additional scrutiny.
+
+## Canonical migration and compatibility
+
+`dev` is the default development branch. `main` is retained as the stable
+baseline; development changes are not automatically promoted to it. CI and
+CodeQL cover development changes, while publishing remains manual from `main`.
+
+[blackoutsecure/linuxserver-mcp](https://github.com/blackoutsecure/linuxserver-mcp) consolidates `linuxserver-mcp-registry` at `7ad877a`, `blackoutsecure/linuxserver-mcp-server` at `eaa5b0c`, and `blackoutmode/linuxserver-mcp-server` at `6eb7188`, including its extra local checkout. All source histories and license notices are retained; originals were not deleted or archived.
+
+Version 0.2.0 adds the policy/core interfaces and three tools without renaming the 22 legacy tools. `linuxserver-mcp` now accepts audit/review commands; no arguments still starts stdio. The installed aliases `linuxserver-mcp-registry` and `linuxserver-mcp-server`, and local `packages/mcp-server/dist/cli.js`, remain stdio-compatible. `dist/index.js` remains a library entry point.
+
+## Contributing and license
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Keep policy sources explicit, include valid/invalid fixtures, and preserve read-only defaults.
+
+GPL-3.0 for the combined project; original MIT attribution remains in [NOTICE](NOTICE). The Action bundle retains third-party license notices next to its entry point. See [LICENSE](LICENSE).

@@ -3,6 +3,8 @@
   "files": [],
   "references": [
     { "path": "./packages/mcp-server" },
+    { "path": "./apps/cli" },
+    { "path": "./apps/github-action" },
     { "path": "./worker" },
     { "path": "./apps/web" }
   ]

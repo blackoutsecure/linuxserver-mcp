@@ -1,6 +1,37 @@
 import { SOURCES } from '../constants.js';
+import { z } from 'zod';
+import { AnalysisError } from '../core/schemas.js';
 import type { Image } from '../types.js';
-import { cache } from './cache.js';
+import { cache, type MemoryCache } from './cache.js';
+import { fetchPublicText } from './public-http.js';
+
+const recordsSchema = z.array(z.record(z.string(), z.unknown()));
+const catalogSchema = z.union([
+  recordsSchema,
+  z.object({
+    data: z.union([
+      recordsSchema,
+      z.object({ repositories: z.object({ linuxserver: recordsSchema }) })
+    ])
+  }),
+  z.object({ images: recordsSchema })
+]);
+const normalizedImagesSchema = z.array(
+  z.object({
+    name: z.string().min(1),
+    displayName: z.string().optional(),
+    description: z.string().optional(),
+    logoUrl: z.string().optional(),
+    architectures: z.array(z.string()).optional(),
+    tags: z.array(z.string()).optional(),
+    categories: z.array(z.string()).optional(),
+    latestVersion: z.string().optional(),
+    firstBuild: z.string().optional(),
+    lastBuild: z.string().optional(),
+    deprecated: z.boolean().optional(),
+    sourceLinks: z.array(z.string())
+  })
+);
 
 export function normalizeImageName(value: string): string {
   return value
@@ -58,6 +89,8 @@ export function normalizeApiImage(raw: Record<string, unknown>): Image | null {
       typeof (raw.last_build ?? raw.version_timestamp) === 'string'
         ? String(raw.last_build ?? raw.version_timestamp)
         : undefined,
+    deprecated:
+      typeof raw.deprecated === 'boolean' ? raw.deprecated : undefined,
     sourceLinks: [
       SOURCES.catalog,
       `https://docs.linuxserver.io/images/docker-${name}/`,
@@ -67,43 +100,69 @@ export function normalizeApiImage(raw: Record<string, unknown>): Image | null {
 }
 
 export async function fetchImages(
-  fetcher: typeof fetch = fetch
+  fetcher: typeof fetch = fetch,
+  store: MemoryCache = cache
 ): Promise<Image[]> {
   const baseUrl = process.env.LSIO_API_BASE_URL ?? 'https://api.linuxserver.io';
   const ttl = Number(process.env.CACHE_TTL_SECONDS ?? 3600);
-  return cache.getOrSet('images', ttl, async () => {
+  if (
+    !/^https:\/\/api\.linuxserver\.io\/?$/.test(baseUrl) ||
+    !Number.isInteger(ttl) ||
+    ttl < 1 ||
+    ttl > 86_400
+  ) {
+    throw new AnalysisError(
+      'VALIDATION_FAILED',
+      'Use the official HTTPS LSIO_API_BASE_URL and a CACHE_TTL_SECONDS value from 1 to 86400.'
+    );
+  }
+  const cached: unknown = await store.getOrSet('images:v1', ttl, async () => {
+    const text = await fetchPublicText(
+      `${baseUrl.replace(/\/$/, '')}/api/v1/images`,
+      'json',
+      4_000_000,
+      fetcher
+    );
+    let body: unknown;
     try {
-      const response = await fetcher(
-        `${baseUrl.replace(/\/$/, '')}/api/v1/images`,
-        {
-          headers: {
-            Accept: 'application/json',
-            'User-Agent': 'linuxserver-mcp/0.1.0'
-          }
-        }
-      );
-      if (!response.ok) return [];
-      const body = (await response.json()) as unknown;
-      const records = Array.isArray(body)
-        ? body
-        : typeof body === 'object' && body
-          ? (((body as any).data?.repositories?.linuxserver as unknown) ??
-            (body as Record<string, unknown>).data ??
-            (body as Record<string, unknown>).images)
-          : [];
-      return Array.isArray(records)
-        ? records
-            .map((record) =>
-              typeof record === 'object' && record
-                ? normalizeApiImage(record as Record<string, unknown>)
-                : null
-            )
-            .filter((image): image is Image => image !== null)
-        : [];
+      body = JSON.parse(text) as unknown;
     } catch {
-      return [];
+      throw new AnalysisError(
+        'UPSTREAM_UNAVAILABLE',
+        'The image API returned malformed JSON.'
+      );
     }
+    const parsed = catalogSchema.safeParse(body);
+    if (!parsed.success)
+      throw new AnalysisError(
+        'UPSTREAM_UNAVAILABLE',
+        'The image API returned an unsupported catalogue structure.'
+      );
+    const value = parsed.data;
+    const records = Array.isArray(value)
+      ? value
+      : 'data' in value
+        ? Array.isArray(value.data)
+          ? value.data
+          : value.data.repositories.linuxserver
+        : value.images;
+    return records.map((record) => {
+      const image = normalizeApiImage(record);
+      if (!image)
+        throw new AnalysisError(
+          'UPSTREAM_UNAVAILABLE',
+          'An image API record has no valid name.'
+        );
+      return image;
+    });
   });
+  const validated = normalizedImagesSchema.safeParse(cached);
+  if (!validated.success)
+    throw new AnalysisError(
+      'UPSTREAM_UNAVAILABLE',
+      'Cached image metadata is invalid. Refresh the public metadata cache.'
+    );
+  return validated.data;
 }
 
 export async function searchImages(input: {

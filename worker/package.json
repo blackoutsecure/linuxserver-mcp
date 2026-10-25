@@ -1,6 +1,6 @@
 {
   "name": "@blackoutsecure/linuxserver-mcp-worker",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,7 +9,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@blackoutsecure/linuxserver-mcp": "0.1.0",
+    "@blackoutsecure/linuxserver-mcp": "0.2.0",
     "@modelcontextprotocol/server": "^2.0.0",
     "hono": "^4.8.10",
     "zod": "^4.0.14"

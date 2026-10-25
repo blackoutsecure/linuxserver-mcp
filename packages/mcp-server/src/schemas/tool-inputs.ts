@@ -122,3 +122,12 @@ export const skillsetsInput = z.object({
 export const optimizationIdeasInput = z.object({
   scope: z.enum(['all', 'server', 'image', 'release', 'quality']).default('all')
 });
+export const releaseStatusOutput = z.object({
+  imageName: z.string(),
+  status: z.enum(['found', 'not_found']),
+  latestVersion: z.string().nullable(),
+  lastBuild: z.string().nullable(),
+  deprecated: z.boolean().nullable(),
+  architectures: z.array(z.string()).nullable(),
+  sourceLinks: z.array(z.string())
+});

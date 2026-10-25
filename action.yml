@@ -1,0 +1,38 @@
+name: LinuxServer MCP Review
+description: Evidence-backed, read-only LinuxServer repository analysis with GitHub annotations and SARIF.
+author: Blackout Secure
+branding:
+  icon: check-circle
+  color: blue
+inputs:
+  path:
+    description: Repository subdirectory inside GITHUB_WORKSPACE
+    default: '.'
+  mode:
+    description: review (changed files) or audit (full snapshot); both are read-only
+    default: review
+  policy:
+    description: Optional recommended, linuxserver, or security profile; otherwise use repository configuration
+    default: ''
+  annotate:
+    description: Emit workflow annotations; never post PR comments
+    default: 'true'
+  fail-on:
+    description: Optional error, warning, info, or none threshold; otherwise use repository configuration
+    default: ''
+  changed-files:
+    description: Optional JSON array of changed repository paths instead of a GitHub read
+    default: ''
+  token:
+    description: Optional read-only GitHub credential for private PRs or higher public rate limits
+    default: ${{ github.token }}
+outputs:
+  sarif-file:
+    description: SARIF report in RUNNER_TEMP, suitable for a separate Code Scanning upload
+  findings:
+    description: Number of unsuppressed findings
+  failed:
+    description: Whether the configured finding threshold was reached
+runs:
+  using: node24
+  main: apps/github-action/dist/index.cjs

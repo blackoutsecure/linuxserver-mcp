@@ -1,13 +1,13 @@
 {
   "name": "@blackoutsecure/linuxserver-mcp",
   "mcpName": "io.github.blackoutsecure/linuxserver-mcp",
-  "version": "0.1.0",
-  "description": "Community MCP server for LinuxServer.io image discovery, audits, request research, scaffolding, and development guidance.",
+  "version": "0.2.0",
+  "description": "Shared LinuxServer.io policy/audit engine, CLI and MCP server for discovery, repository review and container authoring.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "linuxserver-mcp": "./dist/cli.js",
+    "linuxserver-mcp": "./dist/command.js",
     "linuxserver-mcp-registry": "./dist/cli.js",
     "linuxserver-mcp-server": "./dist/cli.js"
   },
@@ -15,7 +15,16 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js"
+    },
+    "./stdio": {
+      "types": "./dist/stdio.d.ts",
+      "import": "./dist/stdio.js"
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
@@ -44,7 +53,7 @@
     "url": "git+https://github.com/blackoutsecure/linuxserver-mcp.git"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node ../../tools/build-interfaces.mjs --cli-only",
     "start": "node dist/cli.js",
     "test": "vitest run"
   },

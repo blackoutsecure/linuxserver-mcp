@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { app } from '../src/index.js';
+import { auditRepository } from '@blackoutsecure/linuxserver-mcp/core';
 
 const headers = {
   Accept: 'application/json, text/event-stream',
@@ -33,10 +34,16 @@ describe.sequential('MCP Streamable HTTP transport', () => {
     const tools = await call({ jsonrpc: '2.0', id: 2, method: 'tools/list' });
     const toolsBody = (await tools.json()) as any;
     expect(tools.status).toBe(200);
-    expect(toolsBody.result.tools).toHaveLength(22);
+    expect(toolsBody.result.tools).toHaveLength(25);
     expect(
       toolsBody.result.tools.map((tool: { name: string }) => tool.name)
     ).toContain('lsio.closed_image_requests');
+    expect(
+      toolsBody.result.tools.every(
+        (tool: { annotations?: { readOnlyHint?: boolean } }) =>
+          tool.annotations?.readOnlyHint === true
+      )
+    ).toBe(true);
 
     const support = await call({
       jsonrpc: '2.0',
@@ -52,20 +59,23 @@ describe.sequential('MCP Streamable HTTP transport', () => {
     expect(supportBody.result.structuredContent.links).toHaveLength(10);
   });
 
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
 
   it('calls every migrated authoring tool through Streamable HTTP', async () => {
     vi.stubGlobal(
       'fetch',
-      vi
-        .fn()
-        .mockImplementation(() =>
-          Promise.resolve(
-            new Response(
-              '<a href="/images/docker-sonarr/">Sonarr</a> PUID PGID /config docker compose read-only'
-            )
-          )
+      vi.fn().mockImplementation((url: string) =>
+        Promise.resolve(
+          url.startsWith('https://api.linuxserver.io/')
+            ? Response.json([{ name: 'sonarr' }])
+            : new Response('PUID PGID /config docker compose read-only', {
+                headers: { 'Content-Type': 'text/html' }
+              })
         )
+      )
     );
     const inputs: [string, Record<string, unknown>, Record<string, unknown>][] =
       [
@@ -148,5 +158,114 @@ describe.sequential('MCP Streamable HTTP transport', () => {
     };
     expect(body.result.isError).toBe(true);
     expect(body.result.content[0].text).toContain('Invalid spec');
+  });
+
+  it('uses the same deterministic repository core over HTTP and returns structured configuration errors', async () => {
+    const snapshot = {
+      files: [
+        { path: 'Dockerfile', content: 'FROM scratch\nRUN chmod 777 /app\n' }
+      ],
+      complete: true
+    };
+    const response = await call({
+      jsonrpc: '2.0',
+      id: 40,
+      method: 'tools/call',
+      params: { name: 'repo_audit', arguments: snapshot }
+    });
+    const body = (await response.json()) as {
+      result: { structuredContent: unknown; isError?: boolean };
+    };
+    expect(body.result.isError).not.toBe(true);
+    expect(body.result.structuredContent).toEqual(auditRepository(snapshot));
+    const invalid = await call({
+      jsonrpc: '2.0',
+      id: 41,
+      method: 'tools/call',
+      params: {
+        name: 'repo_audit',
+        arguments: {
+          files: [
+            {
+              path: '.github/linuxserver-mcp.yml',
+              content: 'version: 1\nagent:\n  automatic_writes: true\n'
+            }
+          ]
+        }
+      }
+    });
+    const failure = (await invalid.json()) as {
+      result: {
+        isError: boolean;
+        structuredContent: { error: { code: string } };
+      };
+    };
+    expect(failure.result.isError).toBe(true);
+    expect(failure.result.structuredContent.error.code).toBe(
+      'VALIDATION_FAILED'
+    );
+  });
+
+  it('executes the remaining discovery/research tools and new inspection/release tools through the SDK', async () => {
+    vi.stubEnv('GITHUB_TOKEN', '');
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockImplementation(async (url) =>
+        String(url).startsWith('https://api.linuxserver.io/')
+          ? Response.json([
+              { name: 'sonarr', categories: ['Media'], version: '1.2.3' }
+            ])
+          : new Response(
+              '<ul><li class="Box-row"><a data-hovercard-type="discussion" href="/orgs/linuxserver/discussions/145">Sonarr</a><relative-time datetime="2026-01-01"></relative-time></li></ul>',
+              { headers: { 'Content-Type': 'text/html' } }
+            )
+      );
+    vi.stubGlobal('fetch', fetcher);
+    const inputs: [string, Record<string, unknown>, string][] = [
+      ['lsio.search_images', { query: 'sonarr' }, 'results'],
+      ['lsio.get_image', { imageName: 'sonarr' }, 'found'],
+      ['lsio.audit_image', { imageName: 'sonarr' }, 'checks'],
+      [
+        'lsio.audit_compose',
+        { composeYaml: 'services:\n  app:\n    image: linuxserver/sonarr\n' },
+        'services'
+      ],
+      ['lsio.list_categories', {}, 'categories'],
+      ['lsio.get_known_issues', {}, 'items'],
+      ['lsio.search_image_requests', { query: 'sonarr' }, 'results'],
+      ['lsio.pending_image_requests', { query: 'sonarr' }, 'results'],
+      ['lsio.closed_image_requests', { query: 'sonarr' }, 'results'],
+      ['lsio.recommended_new_images', { query: 'sonarr' }, 'recommendations'],
+      ['lsio.prepare_image_request', { appName: 'sonarr' }, 'draftMarkdown'],
+      ['lsio.image_pipeline', { imageName: 'sonarr' }, 'recommendation'],
+      [
+        'repo_inspect',
+        { files: [{ path: 'Dockerfile', content: 'FROM scratch\n' }] },
+        'capabilities'
+      ],
+      ['release_status', { imageName: 'sonarr' }, 'latestVersion']
+    ];
+    for (const [index, [name, args, field]] of inputs.entries()) {
+      const response = await call({
+        jsonrpc: '2.0',
+        id: index + 100,
+        method: 'tools/call',
+        params: { name, arguments: args }
+      });
+      const body = (await response.json()) as {
+        result: {
+          isError?: boolean;
+          structuredContent: Record<string, unknown>;
+        };
+      };
+      expect(body.result.isError, name).not.toBe(true);
+      expect(body.result.structuredContent, name).toHaveProperty(field);
+    }
+    expect(
+      fetcher.mock.calls.every(
+        ([, options]) =>
+          options?.method === undefined || options.method === 'GET'
+      )
+    ).toBe(true);
   });
 });

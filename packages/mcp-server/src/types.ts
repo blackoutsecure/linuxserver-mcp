@@ -9,6 +9,7 @@ export type Image = {
   latestVersion?: string;
   firstBuild?: string;
   lastBuild?: string;
+  deprecated?: boolean;
   sourceLinks: string[];
 };
 

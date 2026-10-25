@@ -38,6 +38,19 @@ export {
   searchImages
 };
 
+export async function releaseStatus(imageName: string) {
+  const result = await getImage(imageName);
+  return {
+    imageName: normalizeImageName(imageName),
+    status: result.found ? ('found' as const) : ('not_found' as const),
+    latestVersion: result.image?.latestVersion ?? null,
+    lastBuild: result.image?.lastBuild ?? null,
+    deprecated: result.image?.deprecated ?? null,
+    architectures: result.image?.architectures ?? null,
+    sourceLinks: result.sourceLinks
+  };
+}
+
 export async function listCategories(input: {
   query?: string;
   limit?: number;

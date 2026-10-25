@@ -1,0 +1,15 @@
+{
+  "name": "@blackoutsecure/linuxserver-mcp-action",
+  "version": "0.2.0",
+  "private": true,
+  "license": "GPL-3.0",
+  "type": "module",
+  "scripts": {
+    "build": "node ../../tools/build-interfaces.mjs --action-only"
+  },
+  "dependencies": {
+    "@blackoutsecure/linuxserver-mcp": "0.2.0",
+    "@blackoutsecure/linuxserver-mcp-cli": "0.2.0",
+    "zod": "^4.0.14"
+  }
+}

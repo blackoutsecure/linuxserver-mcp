@@ -4,7 +4,9 @@
  * Standards basis: LSIO image catalog, docs references, and validation/scaffold conventions
  * Approval status: Community-aligned implementation; verify with LSIO maintainers for official acceptance
  */
-import { normalizeImageName } from '../services/linuxserver-api.js';
+import { getImage, normalizeImageName } from '../services/linuxserver-api.js';
+import { AnalysisError } from '../core/schemas.js';
+import { fetchPublicText } from '../services/public-http.js';
 import { scaffoldLsioService } from './scaffold.js';
 import type {
   ComplianceAuditInput,
@@ -23,7 +25,14 @@ function escapeRegExp(value: string): string {
 }
 
 export function getOfficialDocsUrl(imageName: string): string {
-  return `${LSIO_IMAGE_DOCS_BASE}${normalizeImageName(imageName)}/`;
+  const normalized = normalizeImageName(imageName);
+  if (!/^[a-z0-9][a-z0-9._-]*$/.test(normalized)) {
+    throw new AnalysisError(
+      'VALIDATION_FAILED',
+      'An image reference must resolve to a single valid image name.'
+    );
+  }
+  return `${LSIO_IMAGE_DOCS_BASE}${normalized}/`;
 }
 
 export function detectImageInCatalogHtml(
@@ -62,23 +71,6 @@ function detectDocsSignals(
   };
 }
 
-async function fetchWithTimeout(
-  url: string,
-  timeoutMs: number
-): Promise<Response> {
-  const timeoutController = new AbortController();
-  const timeoutHandle = setTimeout(() => timeoutController.abort(), timeoutMs);
-
-  try {
-    return await fetch(url, {
-      signal: timeoutController.signal,
-      headers: { 'User-Agent': 'linuxserver-mcp/0.1.0' }
-    });
-  } finally {
-    clearTimeout(timeoutHandle);
-  }
-}
-
 export async function lookupOfficialLsioImage(
   imageName: string
 ): Promise<OfficialImageLookupResult> {
@@ -87,94 +79,38 @@ export async function lookupOfficialLsioImage(
   const notes: string[] = [];
   const checkedAt = new Date().toISOString();
 
-  try {
-    const listingResponse = await fetchWithTimeout(
-      LSIO_IMAGES_LISTING_URL,
-      8000
-    );
-    if (!listingResponse.ok) {
-      notes.push(
-        `Could not verify listing page (HTTP ${listingResponse.status}).`
-      );
-      return {
-        imageName: normalizedName,
-        exists: false,
-        listingUrl: LSIO_IMAGES_LISTING_URL,
-        docsUrl,
-        checkedAt,
-        notes
-      };
-    }
-
-    const listingHtml = await listingResponse.text();
-    const exists = detectImageInCatalogHtml(listingHtml, normalizedName);
-
-    const docsResponse = await fetchWithTimeout(docsUrl, 8000);
-
-    if (!exists && !docsResponse.ok) {
-      notes.push('Image was not found in the official LSIO images listing.');
-      notes.push(`Docs page check returned HTTP ${docsResponse.status}.`);
-      return {
-        imageName: normalizedName,
-        exists: false,
-        listingUrl: LSIO_IMAGES_LISTING_URL,
-        docsUrl,
-        checkedAt,
-        notes
-      };
-    }
-
-    if (!exists && docsResponse.ok) {
-      notes.push(
-        'Listing lookup was inconclusive; docs page exists and was used as fallback signal.'
-      );
-    }
-
-    if (!docsResponse.ok) {
-      notes.push(
-        `Image appears in listing but docs page check returned HTTP ${docsResponse.status}.`
-      );
-      return {
-        imageName: normalizedName,
-        exists,
-        listingUrl: LSIO_IMAGES_LISTING_URL,
-        docsUrl,
-        checkedAt,
-        notes
-      };
-    }
-
-    const docsHtml = await docsResponse.text();
-    const docsSignals = detectDocsSignals(docsHtml);
+  const metadata = await getImage(normalizedName);
+  const result: OfficialImageLookupResult = {
+    imageName: normalizedName,
+    exists: metadata.found,
+    listingUrl: LSIO_IMAGES_LISTING_URL,
+    docsUrl,
+    checkedAt,
+    notes
+  };
+  if (!metadata.found) {
     notes.push(
-      exists
-        ? 'Image found in listing and docs page was reachable.'
-        : 'Image confirmed via docs page fallback check.'
+      'No matching image was found in the available structured LinuxServer API catalogue. Historical coverage may be incomplete.'
     );
-
-    return {
-      imageName: normalizedName,
-      exists: exists || docsResponse.ok,
-      listingUrl: LSIO_IMAGES_LISTING_URL,
-      docsUrl,
-      checkedAt,
-      notes,
-      docsSignals
-    };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    notes.push(
-      `Lookup was inconclusive due to network/runtime error: ${message}`
-    );
-    return {
-      imageName: normalizedName,
-      exists: false,
-      listingUrl: LSIO_IMAGES_LISTING_URL,
-      docsUrl,
-      checkedAt,
-      notes
-    };
+    return result;
   }
+  notes.push(
+    'Image found in the structured LinuxServer API catalogue; HTML is not used to infer official image existence.'
+  );
+  try {
+    result.docsSignals = detectDocsSignals(
+      await fetchPublicText(docsUrl, 'html', 1_000_000)
+    );
+    notes.push(
+      'Documentation signals describe detected text, not verified capability support.'
+    );
+  } catch (error) {
+    if (!(error instanceof AnalysisError)) throw error;
+    notes.push(
+      `${error.code}: Optional documentation signals are unavailable; catalogue existence is unchanged.`
+    );
+  }
+  return result;
 }
 
 function hasPuidPgidSupport(...artifacts: Array<string | undefined>): boolean {
@@ -436,6 +372,9 @@ export function auditImageCompliance(
   }
 
   const result: ComplianceAuditResult = {
+    guidanceBasis: 'project_recommendation',
+    disclaimer:
+      'This opinionated project checklist is not official LinuxServer.io policy, acceptance, or security certification. Verify image-specific capabilities before applying recommendations.',
     score,
     summary:
       score >= 90

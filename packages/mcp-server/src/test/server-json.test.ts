@@ -13,7 +13,9 @@ describe('server.json generation', () => {
       '@blackoutsecure/linuxserver-mcp'
     );
     expect(listRegistryServers().metadata.count).toBe(1);
-    expect(getRegistryVersion('0.1.0')?.version).toBe('0.1.0');
+    expect(getRegistryVersion(metadata.version)?.version).toBe(
+      metadata.version
+    );
   });
 
   it('keeps publishable package metadata aligned with the root manifest', () => {

@@ -18,14 +18,14 @@ export function AboutPage() {
         <span>Project boundaries</span>
         <h1>About LinuxServer MCP</h1>
         <p>
-          Provided by Blackout Secure and sponsored by Blackout Secure for the
-          LinuxServer.io community.
+          Independent community tooling maintained by Blackout Secure for the
+          LinuxServer.io ecosystem.
         </p>
       </div>
       <p className="disclaimer prominent">
-        Audit results are derived from public LinuxServer.io documentation and
-        are intended as community guidance. They are not an official
-        LinuxServer.io certification, support decision, or approval decision.
+        This project is not affiliated with, endorsed by, sponsored by, or
+        maintained by LinuxServer.io. Findings are community guidance, not
+        certification, support decisions, or approval.
       </p>
       <div className="prose">
         <h2>One canonical project</h2>
@@ -33,10 +33,12 @@ export function AboutPage() {
           <a href="https://github.com/blackoutsecure/linuxserver-mcp">
             LinuxServer MCP
           </a>{' '}
-          combines the image registry and container authoring tools. All 22
-          tools are available through MCP, including scaffolding, validation,
-          and development guidance. This web interface covers image discovery,
-          usage audits, and request research.
+          combines a shared policy/audit engine, MCP server, local CLI, and
+          read-only GitHub Action. All 25 MCP tools include repository
+          snapshots, image discovery, scaffolding, and guidance. This web
+          interface covers image discovery, usage audits, and request research.
+          The optional GitHub App and authenticated write automation remain
+          planned.
         </p>
         <h2>Community scope</h2>
         <p>

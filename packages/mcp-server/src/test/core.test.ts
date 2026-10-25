@@ -83,11 +83,7 @@ describe('safe audit parsing', () => {
   beforeEach(() => {
     vi.stubGlobal(
       'fetch',
-      vi
-        .fn()
-        .mockResolvedValue(
-          new Response(JSON.stringify(imageResponse), { status: 200 })
-        )
+      vi.fn().mockResolvedValue(Response.json(imageResponse))
     );
   });
   afterEach(() => vi.unstubAllGlobals());
@@ -240,11 +236,7 @@ describe('pipeline recommendations', () => {
   it('prioritizes an existing image', async () => {
     vi.stubGlobal(
       'fetch',
-      vi
-        .fn()
-        .mockResolvedValue(
-          new Response(JSON.stringify(imageResponse), { status: 200 })
-        )
+      vi.fn().mockResolvedValue(Response.json(imageResponse))
     );
     const output = await imagePipeline({
       imageName: 'sonarr',

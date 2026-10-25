@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.blackoutsecure/linuxserver-mcp",
   "title": "LinuxServer.io MCP",
-  "description": "LinuxServer.io image discovery, audits, request research, scaffolding, and guidance.",
-  "version": "0.1.0",
+  "description": "LinuxServer.io discovery, evidence-backed audits, repository review, CLI, and container authoring.",
+  "version": "0.2.0",
   "websiteUrl": "https://github.com/blackoutsecure/linuxserver-mcp",
   "repository": {
     "url": "https://github.com/blackoutsecure/linuxserver-mcp",
@@ -14,7 +14,7 @@
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "@blackoutsecure/linuxserver-mcp",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "environmentVariables": [

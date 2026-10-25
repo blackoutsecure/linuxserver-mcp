@@ -18,5 +18,13 @@ export default tseslint.config(
       '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/no-explicit-any': 'off'
     }
+  },
+  {
+    files: [
+      'packages/mcp-server/src/core/**/*.ts',
+      'apps/cli/**/*.ts',
+      'apps/github-action/**/*.ts'
+    ],
+    rules: { '@typescript-eslint/no-explicit-any': 'error' }
   }
 );

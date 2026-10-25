@@ -22,7 +22,7 @@ describe('Worker registry', () => {
       (await app.request(`/v0.1/servers/${encoded}/versions/latest`)).status
     ).toBe(200);
     expect(
-      (await app.request(`/v0.1/servers/${encoded}/versions/0.1.0`)).status
+      (await app.request(`/v0.1/servers/${encoded}/versions/0.2.0`)).status
     ).toBe(200);
     expect(
       (await app.request(`/v0.1/servers/${encoded}/versions/9.9.9`)).status

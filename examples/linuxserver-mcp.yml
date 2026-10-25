@@ -1,0 +1,26 @@
+version: 1
+policy:
+  profile: recommended
+review:
+  changed_files_only: true
+severity:
+  fail_on: [error]
+checks:
+  generated_files: true
+  dockerfile: true
+  architectures: true
+  s6_overlay: true
+  readme_vars: true
+  jenkins_vars: true
+  branding: true
+  security: true
+  supply_chain: true
+github:
+  annotations: true
+  summary: true
+  review_comments: false
+agent:
+  enabled: false
+  suggestions: false
+  automatic_writes: false
+suppressions: []

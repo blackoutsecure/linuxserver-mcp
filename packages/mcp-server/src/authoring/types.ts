@@ -62,6 +62,8 @@ export interface ComplianceAuditInput extends ServiceSpec {
 }
 
 export interface ComplianceAuditResult {
+  guidanceBasis: 'project_recommendation';
+  disclaimer: string;
   score: number;
   summary: string;
   checks: ComplianceCheck[];

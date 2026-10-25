@@ -1,5 +1,8 @@
 node_modules/
 dist/
+!apps/github-action/dist/
+!apps/github-action/dist/index.cjs
+!apps/github-action/dist/THIRD_PARTY_LICENSES.txt
 coverage/
 .dev.vars
 .wrangler/

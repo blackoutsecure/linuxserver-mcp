@@ -1,10 +1,10 @@
 # @blackoutsecure/linuxserver-mcp
 
-Community MCP stdio server for LinuxServer.io image discovery, audits, image request research, container scaffolding, validation, and development guidance. Canonical source: [blackoutsecure/linuxserver-mcp](https://github.com/blackoutsecure/linuxserver-mcp).
+Community policy/audit engine, CLI, and MCP server for LinuxServer.io image discovery, repository audits, request research, scaffolding, and guidance. Canonical source: [blackoutsecure/linuxserver-mcp](https://github.com/blackoutsecure/linuxserver-mcp).
 
 Provided by Blackout Secure and sponsored by Blackout Secure for the LinuxServer.io community.
 
-> Audit results are derived from public LinuxServer.io documentation and are intended as community guidance. They are not an official LinuxServer.io certification, support decision, or approval decision.
+> Independent community tooling, not affiliated with, endorsed by, sponsored by, or maintained by LinuxServer.io. Findings are not certification or approval.
 
 ## Usage
 
@@ -55,12 +55,41 @@ Add to `claude_desktop_config.json`:
 - **Description**: LinuxServer.io API base URL
 - **Default**: `https://api.linuxserver.io`
 - **Required**: No
+- **Boundary**: Only the official HTTPS origin is accepted, not arbitrary proxies or private-network URLs.
 
 ## Tools
 
-The same 22 tools are available through stdio and the optional HTTP Worker. See the [canonical tool list](https://github.com/blackoutsecure/linuxserver-mcp#mcp-tools).
+The same 25 tools are available through stdio and the optional HTTP Worker. Existing names remain compatible. See the [tool contracts](https://github.com/blackoutsecure/linuxserver-mcp/blob/main/docs/tools.md).
 
 The canonical command is `linuxserver-mcp`; the `linuxserver-mcp-registry` and `linuxserver-mcp-server` command aliases are retained. For a local build, run `node packages/mcp-server/dist/cli.js` from the repository root.
+
+## CLI and shared core
+
+No arguments still starts MCP. Auditing does not require MCP, AI, or GitHub:
+
+```bash
+linuxserver-mcp audit . --format text
+linuxserver-mcp audit . --format json
+linuxserver-mcp audit . --format sarif --output linuxserver-mcp.sarif
+```
+
+Exit codes: 0 completed, 1 configured finding threshold, 2 invalid input/runtime
+error. Reports never overwrite existing files or modify repository sources.
+
+Portable library consumers can import only the engine:
+
+```js
+import { auditRepository, toSarif } from '@blackoutsecure/linuxserver-mcp/core';
+
+const report = auditRepository({
+  files: [{ path: 'Dockerfile', content: 'FROM scratch\n' }],
+  complete: false
+});
+const sarif = toSarif(report);
+```
+
+The core accepts bounded snapshots, not host paths. Unknown capabilities remain
+null; every finding retains source, classification, evidence, and remediation.
 
 ## Security
 

@@ -56,6 +56,8 @@ test('auditImageCompliance reports strong alignment for scaffold-like artifacts'
   });
 
   assert.ok(result.score >= 85);
+  assert.equal(result.guidanceBasis, 'project_recommendation');
+  assert.ok(result.disclaimer.includes('not official'));
   assert.equal(
     result.checks.some((check) => check.status === 'fail'),
     false

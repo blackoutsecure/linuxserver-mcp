@@ -45,15 +45,16 @@ export function HomePage() {
   return (
     <>
       <section className="hero">
-        <div className="eyebrow">Community MCP server + registry UI</div>
+        <div className="eyebrow">Community policy engine + MCP + GitHub</div>
         <h1>
           LinuxServer.io
           <br />
           <span>Image Registry</span>
         </h1>
         <p>
-          Discover images, inspect container usage, and research request history
-          using public LinuxServer.io sources.
+          Discover images, inspect container usage, and research request
+          history. The shared policy engine also powers local and GitHub
+          repository reviews without requiring AI.
         </p>
         <div className="hero-search">
           <ImageSearch value={query} onChange={setQuery} onSubmit={search} />
